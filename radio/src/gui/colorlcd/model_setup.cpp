@@ -37,28 +37,6 @@ std::string switchWarninglabel(swsrc_t index)
   return TEXT_AT_INDEX(STR_VSRCRAW, (index + MIXSRC_FIRST_SWITCH - MIXSRC_Rud + 1)) + std::string(&switchPositions[g_model.switchWarningState >> (3*index) & 0x07], 1);
 }
 
-class MultimoduleStatus: public StaticText
-{
-  public:
-    MultimoduleStatus(Window * parent, const rect_t & rect, uint8_t moduleIdx):
-      StaticText(parent, rect),
-      moduleIdx(moduleIdx)
-    {
-    }
-
-    void checkEvents() override
-    {
-      getMultiModuleStatus(moduleIdx).getStatusString(reusableBuffer.moduleSetup.msg);
-      if (text != reusableBuffer.moduleSetup.msg) {
-        setText(reusableBuffer.moduleSetup.msg);
-        invalidate();
-      }
-    }
-
-  protected:
-    uint8_t moduleIdx;
-};
-
 class ChannelFailsafeBargraph: public Window {
   public:
     ChannelFailsafeBargraph(Window * parent, const rect_t & rect, uint8_t moduleIdx, uint8_t channel):
@@ -670,7 +648,11 @@ class ModuleWindow : public FormGroup {
 
         // Multimodule status
         new StaticText(this, grid.getLabelSlot(true), STR_MODULE_STATUS);
-        new MultimoduleStatus(this, grid.getFieldSlot(), moduleIdx);
+        new DynamicText(this, grid.getFieldSlot(), [=] {
+            char msg[64] = "";
+            getModuleStatusString(moduleIdx, msg);
+            return std::string(msg);
+        });
 
         // Multimodule sync
         /*if (multiSyncStatus.isValid()) {
@@ -708,24 +690,66 @@ class ModuleWindow : public FormGroup {
         grid.nextLine();
         new StaticText(this, grid.getLabelSlot(true), STR_MULTI_LOWPOWER);
         new CheckBox(this, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.lowPowerMode));
+
+        // Disable telemetry
+        grid.nextLine();
+        new StaticText(this, grid.getLabelSlot(true), STR_DISABLE_TELEM);
+        new CheckBox(this, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.moduleData[moduleIdx].multi.disableMapping));
       }
 #endif
-#if defined (PCBNV14)
-      else if (isModuleFlysky(moduleIdx)) {
+#if defined(AFHDS3)
+      else if (isModuleAFHDS3(moduleIdx)) {
+        rfChoice = new Choice(this, grid.getFieldSlot(2, 1), STR_AFHDS3_PROTOCOLS, AFHDS_SUBTYPE_FIRST, AFHDS_SUBTYPE_LAST,
+                              GET_SET_DEFAULT(g_model.moduleData[moduleIdx].subType));
+
+        // TYPE
         grid.nextLine();
-        rfChoice = new Choice(this, grid.getFieldSlot(), STR_FLYSKY_PROTOCOLS, 0, 3,
-                   GET_DEFAULT(g_model.moduleData[moduleIdx].flysky.mode),
-                   [=](int32_t newValue) -> void {
-                     g_model.moduleData[moduleIdx].flysky.mode = newValue;
-                     SET_DIRTY();
-                     //TODO moduleFlagBackNormal(moduleIdx);
-                     //TODO onFlySkyReceiverSetPulse(INTERNAL_MODULE, newValue);
-                   });
+        new StaticText(this, grid.getLabelSlot(true), STR_TYPE);
+        new StaticText(this, grid.getFieldSlot(),
+                       g_model.moduleData[EXTERNAL_MODULE].afhds3.telemetry ? STR_AFHDS3_ONE_TO_ONE_TELEMETRY : TR_AFHDS3_ONE_TO_MANY);
+
+        // Status
+        grid.nextLine();
+        new StaticText(this, grid.getLabelSlot(true), STR_MODULE_STATUS);
+        new DynamicText(this, grid.getFieldSlot(), [=] {
+            char msg[64] = "";
+            getModuleStatusString(moduleIdx, msg);
+            return std::string(msg);
+        });
 
 
+        // Power source
         grid.nextLine();
-        new StaticText(this, grid.getLabelSlot(true), STR_FLYSKY_TELEMETRY);
-        new CheckBox(this, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.rssiAlarms.flysky_telemetry));
+        new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_POWER_SOURCE);
+        new DynamicText(this, grid.getFieldSlot(), [=] {
+            char msg[64] = "";
+            getModuleSyncStatusString(moduleIdx, msg);
+            return std::string(msg);
+        });
+
+        // RX Freq
+        grid.nextLine();
+        new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_RX_FREQ);
+        auto edit = new NumberEdit(this, grid.getFieldSlot(2,0), MIN_FREQ, MAX_FREQ, GET_DEFAULT(g_model.moduleData[moduleIdx].afhds3.rxFreq()));
+        edit->setSetValueHandler([=](int32_t newValue) {
+            g_model.moduleData[EXTERNAL_MODULE].afhds3.setRxFreq((uint16_t)newValue);
+        });
+        edit->setSuffix(STR_HZ);
+
+        // Module actual power
+        grid.nextLine();
+        new StaticText(this, grid.getLabelSlot(true), STR_AFHDS3_ACTUAL_POWER);
+        new DynamicText(this, grid.getFieldSlot(), [=] {
+            char msg[64] = "";
+            getStringAtIndex(msg, STR_AFHDS3_POWERS, actualAfhdsRunPower(moduleIdx));
+            return std::string(msg);
+        });
+
+        // Module power
+        grid.nextLine();
+        new StaticText(this, grid.getLabelSlot(true), STR_RF_POWER);
+        new Choice(this, grid.getFieldSlot(2, 0), STR_AFHDS3_POWERS, afhds3::RUN_POWER::RUN_POWER_FIRST, afhds3::RUN_POWER::RUN_POWER_LAST,
+                    GET_SET_DEFAULT(g_model.moduleData[moduleIdx].afhds3.runPower));
       }
 #endif
       grid.nextLine();
@@ -825,6 +849,7 @@ class ModuleWindow : public FormGroup {
 
       // Failsafe
       if (isModuleFailsafeAvailable(moduleIdx)) {
+        hasFailsafe = true;
         new StaticText(this, grid.getLabelSlot(true), STR_FAILSAFE);
         failSafeChoice = new Choice(this, grid.getFieldSlot(2, 0), STR_VFAILSAFE, 0, FAILSAFE_LAST,
                                     GET_DEFAULT(g_model.moduleData[moduleIdx].failsafeMode),
@@ -893,8 +918,37 @@ class ModuleWindow : public FormGroup {
         }
       }
 
+      // SBUS refresh rate
+      if (isModuleSBUS(moduleIdx)) {
+        new StaticText(this, grid.getLabelSlot(true), STR_REFRESHRATE);
+        auto edit = new NumberEdit(this, grid.getFieldSlot(2, 0), 60, 400,
+                                           GET_DEFAULT((int16_t)g_model.moduleData[moduleIdx].ppm.frameLength*5 + 225),
+                                           SET_VALUE(g_model.moduleData[moduleIdx].ppm.frameLength, (newValue - 225)/5),
+                                           0, PREC1);
+        edit->setSuffix(STR_MS);
+        new Choice(this, grid.getFieldSlot(2, 1), STR_SBUS_INVERSION_VALUES, 0, 1, GET_SET_DEFAULT(g_model.moduleData[moduleIdx].sbus.noninverted));
+#if defined(RADIO_TX16S)
+        grid.nextLine();
+        new StaticText(this, grid.getFieldSlot(1, 0), STR_WARN_5VOLTS);
+#endif
+        grid.nextLine();
+      }
+
       getParent()->moveWindowsTop(top() + 1, adjustHeight());
     }
+
+    void checkEvents() override
+    {
+      if (isModuleFailsafeAvailable(moduleIdx) != hasFailsafe) {
+        hasFailsafe = isModuleFailsafeAvailable(moduleIdx);
+        update();
+      }
+
+      FormGroup::checkEvents();
+    }
+
+  protected:
+    bool hasFailsafe = false;
 };
 
 ModelSetupPage::ModelSetupPage() :
@@ -1065,6 +1119,11 @@ void ModelSetupPage::build(FormWindow * window)
     // Throttle trim
     new StaticText(window, grid.getLabelSlot(true), STR_TTRIM);
     new CheckBox(window, grid.getFieldSlot(), GET_SET_DEFAULT(g_model.thrTrim));
+    grid.nextLine();
+
+    // Throttle trim source
+    new StaticText(window, grid.getLabelSlot(true), STR_TTRIM_SW);
+    new SourceChoice(window, grid.getFieldSlot(), 0, NUM_TRIMS - 1, GET_SET_DEFAULT( g_model.thrTrimSw));
     grid.nextLine();
   }
 

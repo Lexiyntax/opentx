@@ -18,8 +18,7 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _LAYOUT_H_
-#define _LAYOUT_H_
+#pragma once
 
 #include <list>
 #include "widgets_container.h"
@@ -36,7 +35,7 @@ class Layout: public WidgetsContainer<MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS>
 
   public:
     Layout(const LayoutFactory * factory, PersistentData * persistentData):
-      WidgetsContainer<MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS>(persistentData),
+      WidgetsContainer<MAX_LAYOUT_ZONES, MAX_LAYOUT_OPTIONS>({0, 0, LCD_W, LCD_H}, persistentData),
       factory(factory)
     {
     }
@@ -125,5 +124,3 @@ Layout * loadLayout(const char * name, Layout::PersistentData * persistentData);
 void loadCustomScreens();
 
 std::list<const LayoutFactory *> & getRegisteredLayouts();
-
-#endif // _LAYOUT_H_
