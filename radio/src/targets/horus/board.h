@@ -398,6 +398,12 @@ enum Analogs {
 #define DEFAULT_SLIDERS_CONFIG (SLIDER_WITH_DETENT << 1) + (SLIDER_WITH_DETENT << 0)
 #endif
 
+#define HARDWARE_POT3
+#if !defined(PCBX12S) // ext are used by mouse on X12S
+#define HARDWARE_EXT1
+#define HARDWARE_EXT2
+#endif
+
 enum CalibratedAnalogs {
   CALIBRATED_STICK1,
   CALIBRATED_STICK2,
@@ -541,7 +547,8 @@ void backlightInit();
 #else
 void backlightEnable(uint8_t dutyCycle = 0);
 #endif
-#define BACKLIGHT_LEVEL_MAX   100
+#define BACKLIGHT_LEVEL_MAX     100
+#define BACKLIGHT_FORCED_ON     BACKLIGHT_LEVEL_MAX + 1
 #if defined(PCBX12S)
 #define BACKLIGHT_LEVEL_MIN   5
 #elif defined(RADIO_FAMILY_T16)
@@ -569,9 +576,9 @@ void usbJoystickUpdate();
   #define USB_MANUFACTURER             'J', 'u', 'm', 'p', 'e', 'r', ' ', ' '  /* 8 bytes */
   #define USB_PRODUCT                  'T', '1', '8', ' ', ' ', ' ', ' ', ' '  /* 8 Bytes */
 #elif defined(RADIO_TX16S)
-  #define USB_NAME                     "RadioMas TX16S"
-  #define USB_MANUFACTURER             'R', 'a', 'd', 'i', 'o', 'M', 'a', 's'  /* 8 bytes */
-  #define USB_PRODUCT                  'T', 'X', '1', '6', 'S', ' ', ' ', ' '  /* 8 Bytes */
+  #define USB_NAME                     "RM TX16S"
+  #define USB_MANUFACTURER             'R', 'M', '_', 'T', 'X', ' ', ' ', ' '  /* 8 bytes */
+  #define USB_PRODUCT                  'R', 'M', ' ', 'T', 'X', '1', '6', 'S'  /* 8 Bytes */
 #elif defined(PCBX10)
   #define USB_NAME                     "FrSky X10"
   #define USB_MANUFACTURER             'F', 'r', 'S', 'k', 'y', ' ', ' ', ' '  /* 8 bytes */
@@ -589,7 +596,6 @@ void audioConsumeCurrentBuffer();
 #define audioEnableIrq()              // interrupts must stay enabled on Horus
 #if defined(PCBX12S)
 #define setSampleRate(freq)
-void audioWaitReady();
 #else
 void setSampleRate(uint32_t frequency);
 #define audioWaitReady()
@@ -631,8 +637,8 @@ void sportUpdatePowerInit();
 #endif
 
 // Aux serial port driver
-#if defined(AUX_SERIAL_GPIO)
 #define DEBUG_BAUDRATE                  115200
+#if defined(AUX_SERIAL_GPIO)
 extern uint8_t auxSerialMode;
 void auxSerialInit(unsigned int mode, unsigned int protocol);
 void auxSerialPutc(char c);
