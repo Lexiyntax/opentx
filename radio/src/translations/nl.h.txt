@@ -312,18 +312,18 @@
 #define LEN_VSWITCHES          "\003"
 #define LEN_VSRCRAW            "\004"
 
-#define TR_STICKS_VSRCRAW      "\307Rud""\307Ele""\307Thr""\307Ail"
+#define TR_STICKS_VSRCRAW        STR_CHAR_STICK "Rud"  STR_CHAR_STICK "Ele"  STR_CHAR_STICK "Thr"  STR_CHAR_STICK "Ail"
 
 #if defined(PCBHORUS)
-  #define TR_TRIMS_VSRCRAW     "\313Rud""\313Ele""\313Thr""\313Ail""\313T5\0""\313T6\0"
+  #define TR_TRIMS_VSRCRAW       STR_CHAR_TRIM "Rud"  STR_CHAR_TRIM "Ele"  STR_CHAR_TRIM "Thr"  STR_CHAR_TRIM "Ail"  STR_CHAR_TRIM "T5\0"  STR_CHAR_TRIM "T6\0"
 #else
-  #define TR_TRIMS_VSRCRAW     TR("TrmR""TrmE""TrmT""TrmA", "\313Rud""\313Ele""\313Thr""\313Ail")
+  #define TR_TRIMS_VSRCRAW     TR("TrmR""TrmE""TrmT""TrmA",   STR_CHAR_TRIM "Rud"  STR_CHAR_TRIM "Ele"  STR_CHAR_TRIM "Thr"  STR_CHAR_TRIM "Ail")
 #endif
 
 #if defined(PCBHORUS)
-  #define TR_TRIMS_SWITCHES    "\313Rl""\313Rr""\313Ed""\313Eu""\313Td""\313Tu""\313Al""\313Ar""\3135d""\3135u""\3136d""\3136u"
+  #define TR_TRIMS_SWITCHES      STR_CHAR_TRIM "Rl"  STR_CHAR_TRIM "Rr"  STR_CHAR_TRIM "Ed"  STR_CHAR_TRIM "Eu"  STR_CHAR_TRIM "Td"  STR_CHAR_TRIM "Tu"  STR_CHAR_TRIM "Al"  STR_CHAR_TRIM "Ar"  STR_CHAR_TRIM "5d"  STR_CHAR_TRIM "5u"  STR_CHAR_TRIM "6d"  STR_CHAR_TRIM "6u"
 #else
-  #define TR_TRIMS_SWITCHES    TR("tRl""tRr""tEd""tEu""tTd""tTu""tAl""tAr", "\313Rl""\313Rr""\313Ed""\313Eu""\313Td""\313Tu""\313Al""\313Ar")
+  #define TR_TRIMS_SWITCHES    TR("tRl""tRr""tEd""tEu""tTd""tTu""tAl""tAr",   STR_CHAR_TRIM "Rl"  STR_CHAR_TRIM "Rr"  STR_CHAR_TRIM "Ed"  STR_CHAR_TRIM "Eu"  STR_CHAR_TRIM "Td"  STR_CHAR_TRIM "Tu"  STR_CHAR_TRIM "Al"  STR_CHAR_TRIM "Ar")
 #endif
 
 #if defined(PCBSKY9X)
@@ -431,7 +431,7 @@
 #define TR_COPYINGMODEL        "Kopieer Model"
 #define TR_MOVINGMODEL         "Verplaats Model"
 #define TR_LOADINGMODEL        "Laad Model..."
-#define STR_NAME                "Naam"
+#define TR_NAME                "Naam"
 #define TR_MODELNAME           "Modelnaam"
 #define TR_PHASENAME           "Modus"
 #define TR_MIXNAME             "Mix Naam"
@@ -543,8 +543,10 @@
 #define TR_BEEPCOUNTDOWN       INDENT "Countdown"
 #define TR_PERSISTENT          TR(INDENT "Vasth.", INDENT "Vasthouden")
 #define TR_BACKLIGHT_LABEL     "LCD-Verlichting"
-#define TR_BLONBRIGHTNESS      "Aan-Helderheid"
-#define TR_BLOFFBRIGHTNESS     "Uit-Helderheid"
+#define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_BLDELAY             INDENT "Duur"
+#define TR_BLONBRIGHTNESS      INDENT "Aan-Helderheid"
+#define TR_BLOFFBRIGHTNESS     INDENT "Uit-Helderheid"
 #define TR_KEYS_BACKLIGHT              "Keys backlight"
 #define TR_BLCOLOR             "Kleur"
 #define TR_SPLASHSCREEN        "Startscherm Aan"
@@ -738,6 +740,7 @@
 #define TR_NO_SDCARD           "Geen SD-Kaart"
 #define TR_WAITING_FOR_RX              "Waiting for RX..."
 #define TR_WAITING_FOR_TX              "Waiting for TX..."
+#define TR_WAITING_FOR_MODULE          TR("Waiting module", "Waiting for module...")
 #define TR_NO_TOOLS                    "No tools available"
 #define TR_NORMAL                      "Normal"
 #define TR_NOT_INVERTED                "Not inv"
@@ -880,6 +883,7 @@
 #define TR_FLASH_INTERNAL_MULTI        TR("Flash Int. Multi", "Flash Internal Multi")
 #define TR_FLASH_EXTERNAL_MODULE       "Flash external module"
 #define TR_FLASH_EXTERNAL_MULTI        TR("Flash Ext. Multi", "Flash External Multi")
+#define TR_FLASH_EXTERNAL_ELRS         TR("Flash Ext. ELRS", "Flash External ELRS")
 #define TR_FIRMWARE_UPDATE_ERROR TR("FW update Error","Firmware update error")
 #define TR_FIRMWARE_UPDATE_SUCCESS     "Flash successful"
 #define TR_WRITING                     "Schrijven..."
@@ -967,7 +971,6 @@
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogs"))
 #define TR_TOUCH_NOTFOUND              "Touch hardware not found"
 #define TR_TOUCH_EXIT                  "Touch screen to exit"
-#define TR_CALIBRATION                   "Calibration"
 #define TR_SET                 "[Set]"
 #define TR_TRAINER             "Trainer Poort"
 #define TR_CHANS                       "Chans"
@@ -1153,10 +1156,18 @@
 #define TR_ABOUT_MARTIN_1      "Martin Hotar"
 #define TR_ABOUT_MARTIN_2      "Graphics designer"
 
-#if defined(PCBFRSKY)
-  #define TR_ABOUT_HARDWARE_1  "FrSky"
-  #define TR_ABOUT_HARDWARE_2  "Hardware designer/producer"
-  #define TR_ABOUT_HARDWARE_3  "Firmware contributor"
+#if defined(MANUFACTURER_FRSKY)
+  #define TR_ABOUT_HARDWARE_1          "FrSky"
+  #define TR_ABOUT_HARDWARE_2          TR("Hardware design/producer", "Hardware designer/producer")
+  #define TR_ABOUT_HARDWARE_3          "Firmware contributor"
+#elif defined(MANUFACTURER_RADIOMASTER)
+  #define TR_ABOUT_HARDWARE_1          "Radiomaster"
+  #define TR_ABOUT_HARDWARE_2          TR("Hardware design/producer", "Hardware designer/producer")
+  #define TR_ABOUT_HARDWARE_3          "Firmware contributor"
+#elif defined(MANUFACTURER_JUMPER)
+  #define TR_ABOUT_HARDWARE_1          "JumperRC"
+  #define TR_ABOUT_HARDWARE_2          TR("Hardware design/producer", "Hardware designer/producer")
+  #define TR_ABOUT_HARDWARE_3          "Firmware contributor"
 #else
   #define TR_ABOUT_HARDWARE_1  "Brent Nelson"
   #define TR_ABOUT_HARDWARE_2  "Sky9x designer/producer"
@@ -1238,19 +1249,19 @@
 #define TR_TEXT_VIEWER                 "Text Viewer"
 
 
-#define TR_MENU_INPUTS         "\314Inputs"
-#define TR_MENU_LUA            "\322Lua Scripts"
-#define TR_MENU_STICKS         "\307Sticks"
-#define TR_MENU_POTS           "\310Pots"
-#define TR_MENU_MAX            "\315MAX"
-#define TR_MENU_HELI           "\316HeliCyclic"
-#define TR_MENU_TRIMS          "\313Trims"
-#define TR_MENU_SWITCHES       "\312Schakelaars"
-#define TR_MENU_LOGICAL_SWITCHES "\312Log. Schakelaars"
-#define TR_MENU_TRAINER        "\317Trainer"
-#define TR_MENU_CHANNELS       "\320Kanalen"
-#define TR_MENU_GVARS          "\311GVars"
-#define TR_MENU_TELEMETRY      "\321Telemetrie"
+#define TR_MENU_INPUTS          STR_CHAR_INPUT "Inputs"
+#define TR_MENU_LUA             STR_CHAR_LUA "Lua Scripts"
+#define TR_MENU_STICKS           STR_CHAR_STICK "Sticks"
+#define TR_MENU_POTS            STR_CHAR_POT "Pots"
+#define TR_MENU_MAX             STR_CHAR_FUNCTION "MAX"
+#define TR_MENU_HELI            STR_CHAR_CYC "HeliCyclic"
+#define TR_MENU_TRIMS            STR_CHAR_TRIM "Trims"
+#define TR_MENU_SWITCHES        STR_CHAR_SWITCH "Schakelaars"
+#define TR_MENU_LOGICAL_SWITCHES  STR_CHAR_SWITCH "Log. Schakelaars"
+#define TR_MENU_TRAINER         STR_CHAR_TRAINER "Trainer"
+#define TR_MENU_CHANNELS        STR_CHAR_CHANNEL "Kanalen"
+#define TR_MENU_GVARS           STR_CHAR_SLIDER "GVars"
+#define TR_MENU_TELEMETRY       STR_CHAR_TELEMETRY "Telemetrie"
 #define TR_MENU_DISPLAY        "DISPLAY"
 #define TR_MENU_OTHER          "Verdere"
 #define TR_MENU_INVERT         "Inverteer"

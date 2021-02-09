@@ -338,18 +338,18 @@
 #define LEN_VSWITCHES          "\003"
 #define LEN_VSRCRAW            "\004"
 
-#define TR_STICKS_VSRCRAW      "\307Dir""\307Ele""\307Mot""\307Ale"
+#define TR_STICKS_VSRCRAW        STR_CHAR_STICK "Dir"  STR_CHAR_STICK "Ele"  STR_CHAR_STICK "Mot"  STR_CHAR_STICK "Ale"
 
 #if defined(PCBHORUS)
-  #define TR_TRIMS_VSRCRAW     "\313Dir""\313Ele""\313Mot""\313Ale""\313T5\0""\313T6\0"
+  #define TR_TRIMS_VSRCRAW       STR_CHAR_TRIM "Dir"  STR_CHAR_TRIM "Ele"  STR_CHAR_TRIM "Mot"  STR_CHAR_TRIM "Ale"  STR_CHAR_TRIM "T5\0"  STR_CHAR_TRIM "T6\0"
 #else
-  #define TR_TRIMS_VSRCRAW     TR("TrmR""TrmE""TrmT""TrmA", "\313Dir""\313Ele""\313Mot""\313Ale")
+  #define TR_TRIMS_VSRCRAW     TR("TrmR""TrmE""TrmT""TrmA",   STR_CHAR_TRIM "Dir"  STR_CHAR_TRIM "Ele"  STR_CHAR_TRIM "Mot"  STR_CHAR_TRIM "Ale")
 #endif
 
 #if defined(PCBHORUS)
-  #define TR_TRIMS_SWITCHES    "\313Rl""\313Rr""\313Ed""\313Eu""\313Td""\313Tu""\313Al""\313Ar""\3135d""\3135u""\3136d""\3136u"
+  #define TR_TRIMS_SWITCHES      STR_CHAR_TRIM "Rl"  STR_CHAR_TRIM "Rr"  STR_CHAR_TRIM "Ed"  STR_CHAR_TRIM "Eu"  STR_CHAR_TRIM "Td"  STR_CHAR_TRIM "Tu"  STR_CHAR_TRIM "Al"  STR_CHAR_TRIM "Ar"  STR_CHAR_TRIM "5d"  STR_CHAR_TRIM "5u"  STR_CHAR_TRIM "6d"  STR_CHAR_TRIM "6u"
 #else
-  #define TR_TRIMS_SWITCHES    TR("tRl""tRr""tEd""tEu""tTd""tTu""tAl""tAr", "\313Rl""\313Rr""\313Ed""\313Eu""\313Td""\313Tu""\313Al""\313Ar")
+  #define TR_TRIMS_SWITCHES    TR("tRl""tRr""tEd""tEu""tTd""tTu""tAl""tAr",   STR_CHAR_TRIM "Rl"  STR_CHAR_TRIM "Rr"  STR_CHAR_TRIM "Ed"  STR_CHAR_TRIM "Eu"  STR_CHAR_TRIM "Td"  STR_CHAR_TRIM "Tu"  STR_CHAR_TRIM "Al"  STR_CHAR_TRIM "Ar")
 #endif
 
 #if defined(PCBSKY9X)
@@ -455,7 +455,7 @@
 #define TR_COPYINGMODEL        "Copia in corso.."
 #define TR_MOVINGMODEL         "Spostamento..."
 #define TR_LOADINGMODEL        "Caricamento..."
-#define STR_NAME                "Nome"
+#define TR_NAME                "Nome"
 #define TR_MODELNAME            TR("Nome Mode.", "Nome Modello")
 #define TR_PHASENAME           "Nome fase"
 #define TR_MIXNAME             "Nome mix"
@@ -556,7 +556,7 @@
 #define TR_INACTIVITYALARM     INDENT "Inattività"
 #define TR_MEMORYWARNING       TR(INDENT "Avv. Mem.", INDENT "Avviso Memoria")
 #define TR_ALARMWARNING        INDENT "Spegni suono"
-#define TR_RSSISHUTDOWNALARM   TR(INDENT "RSSI Shut.", INDENT "Control. RSSI al Shutdown")
+#define TR_RSSI_SHUTDOWN_ALARM TR(INDENT "RSSI Shut.", INDENT "Control. RSSI al Shutdown")
 #define TR_MODEL_STILL_POWERED "Ricevente ancora connessa"
 #define TR_MODEL_SHUTDOWN              "Shutdown?"
 #define TR_PRESS_ENTER_TO_CONFIRM      "Premi [ENT] per confermare"
@@ -566,8 +566,10 @@
 #define TR_BEEPCOUNTDOWN       TR(INDENT "Conto rov", INDENT "Conto rovescia")
 #define TR_PERSISTENT          TR(INDENT "Persist.", INDENT "Persistente")
 #define TR_BACKLIGHT_LABEL     TR("Retroillu.", "Retroilluminazione")
-#define TR_BLONBRIGHTNESS      TR("Lumin. ON",  "Luminosità ON")
-#define TR_BLOFFBRIGHTNESS     TR("Lumin. OFF",  "Luminosità OFF")
+#define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_BLDELAY             INDENT "Durata"
+#define TR_BLONBRIGHTNESS      TR(INDENT "Lumin. ON", INDENT "Luminosità ON")
+#define TR_BLOFFBRIGHTNESS     TR(INDENT "Lumin. OFF", INDENT "Luminosità OFF")
 #define TR_KEYS_BACKLIGHT              "Keys backlight"
 #define TR_BLCOLOR             "Colore"
 #define TR_SPLASHSCREEN        TR("Sch. avvio", "Schermata d'avvio")
@@ -590,7 +592,6 @@
 #define TR_MODESRC             "Modo\006% Origine"
 #define TR_MULTIPLIER          "Moltiplica"
 #define TR_CAL                 "Cal"
-#define TR_CALIBRATION                 "Calibration"
 #define TR_VTRIM               "Trim- +"
 #define TR_BG                  "BG:"
 #define TR_CALIB_DONE                  "Calibration completed"
@@ -756,6 +757,7 @@
 #define TR_NO_SDCARD           "No SDCard"
 #define TR_WAITING_FOR_RX              "Attendo la RX..."
 #define TR_WAITING_FOR_TX              "Attendo la TX..."
+#define TR_WAITING_FOR_MODULE          TR("Waiting module", "Waiting for module...")
 #define TR_NO_TOOLS                    "Tools non disp."
 #define TR_NORMAL                      "Normale"
 #define TR_NOT_INVERTED                "No inv."
@@ -894,6 +896,7 @@
 #define TR_FLASH_BLUETOOTH_MODULE      TR("Prog. mod. BT", INDENT "Prog. modulo Bluetooth")
 #define TR_FLASH_POWER_MANAGEMENT_UNIT TR("Prog. PMU", "Programma PMU")
 #define TR_CURRENT_VERSION             TR("Vers. currente ", "Versione corrente: ")
+#define TR_FLASH_EXTERNAL_ELRS         TR("Flash Ext. ELRS", "Flash External ELRS")
 #define TR_FLASH_INTERNAL_MODULE       TR("Prog. modulo int.", "Programma modulo interno")
 #define TR_FLASH_EXTERNAL_MODULE       TR("Prog. modulo est.", "Programma modulo esterno")
 #define TR_FLASH_INTERNAL_MULTI        TR("Prog. MULTI int.", "Programma MULTI interno")
@@ -1166,8 +1169,16 @@
 #define TR_ABOUT_MARTIN_1      "Martin Hotar"
 #define TR_ABOUT_MARTIN_2      "Graphic Designer"
 
-#if defined(PCBTARANIS)
+#if defined(MANUFACTURER_FRSKY)
   #define TR_ABOUT_HARDWARE_1  "FrSky"
+  #define TR_ABOUT_HARDWARE_2  "Disegno/produzione Hardware"
+  #define TR_ABOUT_HARDWARE_3  "Contributi al Firmware"
+#elif defined(MANUFACTURER_RADIOMASTER)
+  #define TR_ABOUT_HARDWARE_1  "Radiomaster"
+  #define TR_ABOUT_HARDWARE_2  "Disegno/produzione Hardware"
+  #define TR_ABOUT_HARDWARE_3  "Contributi al Firmware"
+#elif defined(MANUFACTURER_JUMPER)
+  #define TR_ABOUT_HARDWARE_1  "JumperRC"
   #define TR_ABOUT_HARDWARE_2  "Disegno/produzione Hardware"
   #define TR_ABOUT_HARDWARE_3  "Contributi al Firmware"
 #else
@@ -1251,19 +1262,19 @@
 #define TR_TEXT_COLOR                  "Text color"
 #define TR_TEXT_VIEWER         "Visualizzatore testi"
 
-#define TR_MENU_INPUTS         "\314Ingressi"
-#define TR_MENU_LUA            "\322Lua scripts"
-#define TR_MENU_STICKS         "\307Sticks"
-#define TR_MENU_POTS           "\310Pots"
-#define TR_MENU_MAX            "\315MAX"
-#define TR_MENU_HELI           "\316Ciclico"
-#define TR_MENU_TRIMS          "\313Trims"
-#define TR_MENU_SWITCHES       "\312Interrut."
-#define TR_MENU_LOGICAL_SWITCHES "\312Interrut. Logici"
-#define TR_MENU_TRAINER        "\317Trainer"
-#define TR_MENU_CHANNELS       "\320Canali"
-#define TR_MENU_GVARS          "\311GVars"
-#define TR_MENU_TELEMETRY      "\321Telemetry"
+#define TR_MENU_INPUTS          STR_CHAR_INPUT "Ingressi"
+#define TR_MENU_LUA             STR_CHAR_LUA "Lua scripts"
+#define TR_MENU_STICKS           STR_CHAR_STICK "Sticks"
+#define TR_MENU_POTS            STR_CHAR_POT "Pots"
+#define TR_MENU_MAX             STR_CHAR_FUNCTION "MAX"
+#define TR_MENU_HELI            STR_CHAR_CYC "Ciclico"
+#define TR_MENU_TRIMS            STR_CHAR_TRIM "Trims"
+#define TR_MENU_SWITCHES        STR_CHAR_SWITCH "Interrut."
+#define TR_MENU_LOGICAL_SWITCHES  STR_CHAR_SWITCH "Interrut. Logici"
+#define TR_MENU_TRAINER         STR_CHAR_TRAINER "Trainer"
+#define TR_MENU_CHANNELS        STR_CHAR_CHANNEL "Canali"
+#define TR_MENU_GVARS           STR_CHAR_SLIDER "GVars"
+#define TR_MENU_TELEMETRY       STR_CHAR_TELEMETRY "Telemetry"
 #define TR_MENU_DISPLAY        "DISPLAY"
 #define TR_MENU_OTHER          "Altro"
 #define TR_MENU_INVERT         "Inverti"

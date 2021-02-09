@@ -314,18 +314,18 @@
 #define LEN_VSWITCHES                  "\003"
 #define LEN_VSRCRAW                    "\004"
 
-#define TR_STICKS_VSRCRAW              "\307Sei""\307Höh""\307Gas""\307Que"
+#define TR_STICKS_VSRCRAW                STR_CHAR_STICK "Sei"  STR_CHAR_STICK "Höh"  STR_CHAR_STICK "Gas"  STR_CHAR_STICK "Que"
 
 #if defined(PCBHORUS)
-  #define TR_TRIMS_VSRCRAW             "\313Sei""\313Höh""\313Gas""\313Que""\313T5\0""\313T6\0"
+  #define TR_TRIMS_VSRCRAW               STR_CHAR_TRIM "Sei"  STR_CHAR_TRIM "Höh"  STR_CHAR_TRIM "Gas"  STR_CHAR_TRIM "Que"  STR_CHAR_TRIM "T5\0"  STR_CHAR_TRIM "T6\0"
 #else
-  #define TR_TRIMS_VSRCRAW             TR("TrmS""TrmH""TrmG""TrmQ", "\313Sei""\313Höh""\313Gas""\313que")
+  #define TR_TRIMS_VSRCRAW             TR("TrmS""TrmH""TrmG""TrmQ",   STR_CHAR_TRIM "Sei"  STR_CHAR_TRIM "Höh"  STR_CHAR_TRIM "Gas"  STR_CHAR_TRIM "que")
 #endif
 
 #if defined(PCBHORUS)
-  #define TR_TRIMS_SWITCHES    			"\313Rl""\313Rr""\313Ed""\313Eu""\313Td""\313Tu""\313Al""\313Ar""\3135d""\3135u""\3136d""\3136u"
+  #define TR_TRIMS_SWITCHES    			  STR_CHAR_TRIM "Rl"  STR_CHAR_TRIM "Rr"  STR_CHAR_TRIM "Ed"  STR_CHAR_TRIM "Eu"  STR_CHAR_TRIM "Td"  STR_CHAR_TRIM "Tu"  STR_CHAR_TRIM "Al"  STR_CHAR_TRIM "Ar"  STR_CHAR_TRIM "5d"  STR_CHAR_TRIM "5u"  STR_CHAR_TRIM "6d"  STR_CHAR_TRIM "6u"
 #else
-  #define TR_TRIMS_SWITCHES    			TR("tRl""tRr""tEd""tEu""tTd""tTu""tAl""tAr", "\313Rl""\313Rr""\313Ed""\313Eu""\313Td""\313Tu""\313Al""\313Ar")
+  #define TR_TRIMS_SWITCHES    			TR("tRl""tRr""tEd""tEu""tTd""tTu""tAl""tAr",   STR_CHAR_TRIM "Rl"  STR_CHAR_TRIM "Rr"  STR_CHAR_TRIM "Ed"  STR_CHAR_TRIM "Eu"  STR_CHAR_TRIM "Td"  STR_CHAR_TRIM "Tu"  STR_CHAR_TRIM "Al"  STR_CHAR_TRIM "Ar")
 #endif
 
 #if defined(PCBSKY9X)
@@ -432,7 +432,7 @@
 #define TR_COPYINGMODEL                "Kopiere Modell"
 #define TR_MOVINGMODEL                 "Schiebe Modell"
 #define TR_LOADINGMODEL                "Lade Modell..."
-#define STR_NAME                        "Name"
+#define TR_NAME                        "Name"
 #define TR_MODELNAME                   "Modellname"
 #define TR_PHASENAME                   "Phase-Name"
 #define TR_MIXNAME                     "Mix-Name"
@@ -544,8 +544,10 @@
 #define TR_BEEPCOUNTDOWN               INDENT "Countdown"
 #define TR_PERSISTENT                  TR(INDENT "Permanent", INDENT "Permanent")
 #define TR_BACKLIGHT_LABEL             "LCD-Beleuchtung"
-#define TR_BLONBRIGHTNESS              "An-Helligkeit"
-#define TR_BLOFFBRIGHTNESS             "Aus-Helligkeit"
+#define TR_GHOST_MENU_LABEL            "GHOST MENU"
+#define TR_BLDELAY                     INDENT "Dauer"
+#define TR_BLONBRIGHTNESS              INDENT "An-Helligkeit"
+#define TR_BLOFFBRIGHTNESS             INDENT "Aus-Helligkeit"
 #define TR_KEYS_BACKLIGHT              "Keys backlight"
 #define TR_BLCOLOR                     "Farbe"
 #define TR_SPLASHSCREEN                TR("Startbild Ein", "Startbild Anzeigedauer")
@@ -568,7 +570,6 @@
 #define TR_MODESRC                     " Modus\003%  Quelle"
 #define TR_MULTIPLIER                  "Multiplik."
 #define TR_CAL                         "Kal."
-#define TR_CALIBRATION                 "Calibration"
 #define TR_VTRIM                       "Trim - +"
 #define TR_BG                          "BG:"
 #define TR_CALIB_DONE                  "Calibration completed"
@@ -734,6 +735,7 @@
 #define TR_NO_SDCARD                    "Keine SD-Karte"
 #define TR_WAITING_FOR_RX              "Waiting for RX..."
 #define TR_WAITING_FOR_TX              "Waiting for TX..."
+#define TR_WAITING_FOR_MODULE          TR("Waiting module", "Waiting for module...")
 #define TR_NO_TOOLS                    "No tools available"
 #define TR_NORMAL                      "Normal"
 #define TR_NOT_INVERTED                "Not inv"
@@ -876,6 +878,7 @@
 #define TR_FLASH_INTERNAL_MULTI        TR("Flash Int. Multi", "Flash int. Multimodul")
 #define TR_FLASH_EXTERNAL_MODULE       TR("Flash ext. mod","Flash ext. Modul")
 #define TR_FLASH_EXTERNAL_MULTI        TR("Flash Ext. Multi", "Flash ext. Multimodul")
+#define TR_FLASH_EXTERNAL_ELRS         TR("Flash Ext. ELRS", "Flash External ELRS")
 #define TR_FIRMWARE_UPDATE_ERROR       TR("FW update Error","Firmware Updatefehler")
 #define TR_FIRMWARE_UPDATE_SUCCESS     TR3("Flash successful","Flash successful","Update erfolgreich")
 #define TR_WRITING                     "Schreibe..."
@@ -978,6 +981,8 @@
 #define TR_TELEMETRY_TYPE      		   TR("Typ", "Telemetrietyp")
 #define TR_TELEMETRY_SENSORS  		   "Sensoren"
 #define TR_VALUE               		   "Wert"
+#define TR_REPEAT                      "Repeat"
+#define TR_ENABLE                      "Enable"
 #define TR_TOPLCDTIMER        		   "Top LCD Timer"
 #define TR_UNIT                			"Einheit"
 #define TR_TELEMETRY_NEWSENSOR          INDENT "Sensor hinzufügen ..."
@@ -1146,10 +1151,18 @@
 #define TR_ABOUT_MARTIN_1              "Martin Hotar"
 #define TR_ABOUT_MARTIN_2              "Grafikdesigner"
 
-#if defined(PCBFRSKY)
-  #define TR_ABOUT_HARDWARE_1         "FrSky"
-  #define TR_ABOUT_HARDWARE_2         "Hardware designer/producer"
-  #define TR_ABOUT_HARDWARE_3         "Firmware contributor"
+#if defined(MANUFACTURER_FRSKY)
+  #define TR_ABOUT_HARDWARE_1          "FrSky"
+  #define TR_ABOUT_HARDWARE_2          TR("Hardware design/producer", "Hardware designer/producer")
+  #define TR_ABOUT_HARDWARE_3          "Firmware contributor"
+#elif defined(MANUFACTURER_RADIOMASTER)
+  #define TR_ABOUT_HARDWARE_1          "Radiomaster"
+  #define TR_ABOUT_HARDWARE_2          TR("Hardware design/producer", "Hardware designer/producer")
+  #define TR_ABOUT_HARDWARE_3          "Firmware contributor"
+#elif defined(MANUFACTURER_JUMPER)
+  #define TR_ABOUT_HARDWARE_1          "JumperRC"
+  #define TR_ABOUT_HARDWARE_2          TR("Hardware design/producer", "Hardware designer/producer")
+  #define TR_ABOUT_HARDWARE_3          "Firmware contributor"
 #else
   #define TR_ABOUT_HARDWARE_1         "Brent Nelson"
   #define TR_ABOUT_HARDWARE_2         "Sky9x designer/producer"
@@ -1230,19 +1243,19 @@
 #define TR_TEXT_COLOR                  "Text color"
 #define TR_TEXT_VIEWER                 "Text Viewer"
 // ----------------------------- Symbole für Auswahlliste----------
-#define TR_MENU_INPUTS                 "\314Inputs"
-#define TR_MENU_LUA                    "\322Lua Skripte"
-#define TR_MENU_STICKS                 "\307Knüppel"
-#define TR_MENU_POTS                   "\310Potis"
-#define TR_MENU_MAX                    "\315MAX"
-#define TR_MENU_HELI                   "\316Heli-TS CYC1-3"
-#define TR_MENU_TRIMS                  "\313Trimmung"
-#define TR_MENU_SWITCHES               "\312Schalter"
-#define TR_MENU_LOGICAL_SWITCHES       "\312Log. Schalter"
-#define TR_MENU_TRAINER                "\317Trainer"
-#define TR_MENU_CHANNELS               "\320Kanäle"
-#define TR_MENU_GVARS                  "\311Glob. Vars"
-#define TR_MENU_TELEMETRY              "\321Telemetrie"
+#define TR_MENU_INPUTS                  STR_CHAR_INPUT "Inputs"
+#define TR_MENU_LUA                     STR_CHAR_LUA "Lua Skripte"
+#define TR_MENU_STICKS                   STR_CHAR_STICK "Knüppel"
+#define TR_MENU_POTS                    STR_CHAR_POT "Potis"
+#define TR_MENU_MAX                     STR_CHAR_FUNCTION "MAX"
+#define TR_MENU_HELI                    STR_CHAR_CYC "Heli-TS CYC1-3"
+#define TR_MENU_TRIMS                    STR_CHAR_TRIM "Trimmung"
+#define TR_MENU_SWITCHES                STR_CHAR_SWITCH "Schalter"
+#define TR_MENU_LOGICAL_SWITCHES        STR_CHAR_SWITCH "Log. Schalter"
+#define TR_MENU_TRAINER                 STR_CHAR_TRAINER "Trainer"
+#define TR_MENU_CHANNELS                STR_CHAR_CHANNEL "Kanäle"
+#define TR_MENU_GVARS                   STR_CHAR_SLIDER "Glob. Vars"
+#define TR_MENU_TELEMETRY               STR_CHAR_TELEMETRY "Telemetrie"
 #define TR_MENU_DISPLAY                "TELM-SEITEN"
 #define TR_MENU_OTHER                  "Weitere"
 #define TR_MENU_INVERT                 "Invertieren<!>"

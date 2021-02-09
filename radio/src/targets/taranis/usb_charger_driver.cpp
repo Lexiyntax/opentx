@@ -2,7 +2,7 @@
  * Copyright (C) OpenTX
  *
  * Based on code named
- *   th9x - http://code.google.com/p/th9x
+ *   th9x - http://code.google.com/p/th9x 
  *   er9x - http://code.google.com/p/er9x
  *   gruvin9x - http://code.google.com/p/gruvin9x
  *
@@ -18,20 +18,20 @@
  * GNU General Public License for more details.
  */
 
-#ifndef _FONTS_H_
-#define _FONTS_H_
+#include "opentx.h"
 
-extern const unsigned char font_5x7[];
-extern const unsigned char font_10x14[];
+void usbChargerInit()
+{
+  GPIO_InitTypeDef GPIO_InitStructure;
+  GPIO_InitStructure.GPIO_Pin = USB_CHARGER_GPIO_PIN;
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;
+  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_2MHz;
+  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+  GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+  GPIO_Init(USB_CHARGER_GPIO, &GPIO_InitStructure);
+}
 
-#if !defined(BOOT)
-  extern const unsigned char font_5x7_B[];
-  extern const unsigned char font_3x5[];
-  extern const unsigned char font_4x6[];
-  extern const unsigned char font_8x10[];
-  extern const unsigned char font_22x38_num[];
-  extern const unsigned char font_10x14_extra[];
-  extern const unsigned char font_4x6_extra[];
-#endif
-
-#endif // _FONTS_H_
+bool usbChargerLed()
+{
+  return (GPIO_ReadInputDataBit(USB_CHARGER_GPIO, USB_CHARGER_GPIO_PIN) == Bit_RESET && usbPlugged());
+}

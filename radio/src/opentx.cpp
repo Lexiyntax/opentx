@@ -373,17 +373,11 @@ void defaultInputs()
     expo->chn = i;
     expo->weight = 100;
     expo->mode = 3; // TODO constant
-#if defined(TRANSLATIONS_CZ)
-    for (int c = 0; c < 4; c++) {
-      g_model.inputNames[i][c] = STR_INPUTNAMES[1+4*(stick_index-1)+c];
-    }
-#else
     for (int c = 0; c < 3; c++) {
       g_model.inputNames[i][c] = STR_VSRCRAW[2 + 4 * stick_index + c];
     }
 #if LEN_INPUT_NAME > 3
     g_model.inputNames[i][3] = '\0';
-#endif
 #endif
   }
   storageDirty(EE_MODEL);
@@ -1143,7 +1137,7 @@ void checkTrims()
     else {
       phase = getTrimFlightMode(mixerCurrentFlightMode, idx);
       before = getTrimValue(phase, idx);
-      thro = (idx==THR_STICK && g_model.thrTrim);
+      thro = (idx == (g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM) && g_model.thrTrim);
     }
 #else
     phase = getTrimFlightMode(mixerCurrentFlightMode, idx);
@@ -1785,7 +1779,8 @@ void copyTrimsToOffset(uint8_t ch)
 
   int16_t output = applyLimits(ch, chans[ch]) - zero;
   int16_t v = g_model.limitData[ch].offset;
-  if (g_model.limitData[ch].revert) output = -output;
+  if (g_model.limitData[ch].revert)
+    output = -output;
   v += (output * 125) / 128;
   g_model.limitData[ch].offset = limit((int16_t)-1000, (int16_t)v, (int16_t)1000); // make sure the offset doesn't go haywire
 
@@ -1860,23 +1855,27 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
   pauseMixerCalculations();
 
   evalFlightModeMixes(e_perout_mode_noinput, 0); // do output loop - zero input sticks and trims
-  for (uint8_t i=0; i<MAX_OUTPUT_CHANNELS; i++) {
+
+  for (uint8_t i = 0; i < MAX_OUTPUT_CHANNELS; i++) {
     zeros[i] = applyLimits(i, chans[i]);
   }
 
   evalFlightModeMixes(e_perout_mode_noinput-e_perout_mode_notrims, 0); // do output loop - only trims
 
-  for (uint8_t i=0; i<MAX_OUTPUT_CHANNELS; i++) {
-    int16_t output = applyLimits(i, chans[i]) - zeros[i];
+  for (uint8_t i = 0; i < MAX_OUTPUT_CHANNELS; i++) {
+    int16_t diff = applyLimits(i, chans[i]) - zeros[i];
     int16_t v = g_model.limitData[i].offset;
-    if (g_model.limitData[i].revert) output = -output;
-    v += (output * 125) / 128;
-    g_model.limitData[i].offset = limit((int16_t)-1000, (int16_t)v, (int16_t)1000); // make sure the offset doesn't go haywire
+    if (g_model.limitData[i].revert)
+      diff = -diff;
+    v += (diff * 125) / 128;
+
+    g_model.limitData[i].offset = limit((int16_t) -1000, (int16_t) v, (int16_t) 1000); // make sure the offset doesn't go haywire
   }
 
   // reset all trims, except throttle (if throttle trim)
   for (uint8_t i=0; i<NUM_TRIMS; i++) {
-    if (i != THR_STICK || !g_model.thrTrim) {
+    auto thrStick = g_model.getThrottleStickTrimSource() - MIXSRC_FIRST_TRIM;
+    if (i != thrStick || !g_model.thrTrim) {
       int16_t original_trim = getTrimValue(mixerCurrentFlightMode, i);
       for (uint8_t fm=0; fm<MAX_FLIGHT_MODES; fm++) {
         trim_t trim = getRawTrimValue(fm, i);
@@ -1902,6 +1901,7 @@ void opentxInit()
   TRACE("opentxInit");
 
 #if defined(LIBOPENUI)
+  new MainWindow();
   new ViewMain();
 #elif defined(GUI)
   // TODO add a function for this (duplicated)
@@ -2260,7 +2260,7 @@ uint32_t pwrCheck()
   else {
 #if defined(COLORLCD)
     if (pwr_press_time != 0)
-      mainWindow.invalidate();
+      MainWindow::instance()->invalidate();
 #endif
     pwr_check_state = PWR_CHECK_ON;
     pwr_press_time = 0;
