@@ -291,12 +291,15 @@
 #elif defined(PCBXLITE)
   #define LEN_VKEYS                    "\005"
   #define TR_VKEYS                     "Shift""Exit\0""Enter""Down\0""Up\0  ""Right""Left\0"
-#elif defined(RADIO_T12)
+#elif defined(RADIO_FAMILY_JUMPER_T12)
   #define LEN_VKEYS                    "\005"
   #define TR_VKEYS                     "Exit\0""Enter""Down\0""Up\0  ""Right""Left\0"
 #elif defined(RADIO_TX12)
   #define LEN_VKEYS                    "\005"
   #define TR_VKEYS                     "Exit\0""Enter""Up\0  ""Down\0""SYS\0 ""MDL\0 ""TELE\0"
+#elif defined(RADIO_T8)
+  #define LEN_VKEYS                    "\005"
+  #define TR_VKEYS                     "RTN\0 ""ENTER""PGUP\0""PGDN\0""SYS\0 ""MDL\0 ""UP\0  ""DOWN\0"
 #elif defined(PCBTARANIS)
   #define LEN_VKEYS                    "\005"
   #define TR_VKEYS                     "Menu\0""Exit\0""Enter""Page\0""Plus\0""Minus"
@@ -441,11 +444,11 @@
 #if defined(PCBSKY9X) && defined(REVX)
   #define TR_OUTPUT_TYPE       INDENT "Output"
 #endif
-#define TR_PROTO               TR(INDENT"Proto",INDENT"Protocolo")
-#define TR_PPMFRAME            "Trama PPM"
+#define TR_PROTOCOL            TR("Proto", "Protocolo")
+#define TR_PPMFRAME            INDENT "Trama PPM"
 #define TR_REFRESHRATE         TR(INDENT "Refresco", INDENT "Velocidad refresco")
 #define STR_WARN_BATTVOLTAGE   TR(INDENT "Salida es VBAT: ", INDENT "Aviso: señal salida es VBAT: ")
-#define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
+#define TR_WARN_5VOLTS                 "Aviso: nivel de salida 5 voltios"
 #define TR_MS                  "ms"
 #define TR_FREQUENCY           INDENT "Frequencia"
 #define TR_SWITCH              TR("Interr.", "Interruptor")
@@ -707,6 +710,7 @@
 #define TR_NO_SDCARD                   "No SDCARD"
 #define TR_WAITING_FOR_RX              "Esperando a RX..."
 #define TR_WAITING_FOR_TX              "Esperando a TX..."
+#define TR_WAITING_FOR_MODULE          TR("Waiting module", "Waiting for module...")
 #define TR_NO_TOOLS                    "No hay utils"
 #define TR_NORMAL                      "Normal"
 #define TR_NOT_INVERTED                "No inv"
@@ -782,7 +786,7 @@
 #define TR_NO_MODELS_ON_SD     "Sin modelos en SD"
 #define TR_NO_BITMAPS_ON_SD    "Sin imágenes en SD"
 #define TR_NO_SCRIPTS_ON_SD    "No scripts en SD"
-#define TR_SCRIPT_SYNTAX_ERROR "Script syntax error"
+#define TR_SCRIPT_SYNTAX_ERROR TR("Syntax error", "Script syntax error")
 #define TR_SCRIPT_PANIC        "Script panic"
 #define TR_SCRIPT_KILLED       "Script killed"
 #define TR_SCRIPT_ERROR        "Error desconocido"
@@ -932,8 +936,8 @@
 #define TR_DEBUG                       "Debug"
 #define TR_KEYS_BTN                BUTTON(TR("SW","Switches"))
 #define TR_ANALOGS_BTN                 BUTTON(TR("Analog","Analogs"))
-#define TR_TOUCH_NOTFOUND              "Touch hardware not found"
-#define TR_TOUCH_EXIT                  "Touch screen to exit"
+#define TR_TOUCH_NOTFOUND              "Hardware táctil no encontrado"
+#define TR_TOUCH_EXIT                  "Tocar pantalla para salir"
 #define TR_CALIBRATION                   "Calibración"
 #define TR_SET                 "[Ajuste]"
 #define TR_TRAINER             "Entrenador"
@@ -949,8 +953,8 @@
 #define TR_UNIT                "Unidad"
 #define TR_TELEMETRY_NEWSENSOR INDENT "Añadir sensor..."
 #define TR_CHANNELRANGE        INDENT "Canales"
-#define TR_AFHDS3_RX_FREQ              TR("RX freq.", "RX frequency")
-#define TR_AFHDS3_ONE_TO_ONE_TELEMETRY TR("Unicast/Tel.", "Unicast/Telemetry")
+#define TR_AFHDS3_RX_FREQ              TR("RX freq.", "RX frequencia")
+#define TR_AFHDS3_ONE_TO_ONE_TELEMETRY TR("Unicast/Tel.", "Unicast/Telemetría")
 #define TR_AFHDS3_ONE_TO_MANY          "Multicast"
 #define TR_AFHDS3_ACTUAL_POWER         TR("Act. pow", "Actual power")
 #define TR_AFHDS3_POWER_SOURCE         TR("Power src.", "Power source")
@@ -1014,7 +1018,7 @@
 #define LEN_SPORT_UPDATE_POWER_MODES   "\004"
 #define TR_SPORT_UPDATE_POWER_MODES    "AUTO""ON\0 "
 #define TR_NO_TELEMETRY_SCREENS        TR("No hay pant. telemetría", "No hay pantallas de telemetría")
-#define TR_TOUCH_PANEL                 "Touch panel:"
+#define TR_TOUCH_PANEL                 "Pantalla táctil:"
 
 // Horus and Taranis column headers
 #define TR_PHASES_HEADERS_NAME         "Nombre"
@@ -1112,8 +1116,16 @@
 #define TR_ABOUT_MARTIN_1      "Martin Hotar"
 #define TR_ABOUT_MARTIN_2      "Dise\201o gráfico"
 
-#if defined(PCBTARANIS)
+#if defined(MANUFACTURER_FRSKY)
   #define TR_ABOUT_HARDWARE_1  "FrSky"
+  #define TR_ABOUT_HARDWARE_2  "Productor dise\201o de hardware"
+  #define TR_ABOUT_HARDWARE_3  "Colaborador firmware"
+#elif defined(MANUFACTURER_RADIOMASTER)
+  #define TR_ABOUT_HARDWARE_1  "Radiomaster"
+  #define TR_ABOUT_HARDWARE_2  "Productor dise\201o de hardware"
+  #define TR_ABOUT_HARDWARE_3  "Colaborador firmware"
+#elif defined(MANUFACTURER_JUMPER)
+  #define TR_ABOUT_HARDWARE_1  "JumperRC"
   #define TR_ABOUT_HARDWARE_2  "Productor dise\201o de hardware"
   #define TR_ABOUT_HARDWARE_3  "Colaborador firmware"
 #else
@@ -1191,9 +1203,9 @@
 #define TR_ADDMAINVIEW         "Añadir vista pral."
 #define TR_BACKGROUND_COLOR    "Color de fondo"
 #define TR_MAIN_COLOR          "Color principal"
-#define TR_BAR2_COLOR                  "Secondary bar color"
-#define TR_BAR1_COLOR                  "Main bar color"
-#define TR_TEXT_COLOR                  "Text color"
+#define TR_BAR2_COLOR                  "Color barra secundaria"
+#define TR_BAR1_COLOR                  "Color barra principal"
+#define TR_TEXT_COLOR                  "Color texto"
 #define TR_TEXT_VIEWER         "Visor de texto"
 
 #define TR_MENU_INPUTS         "\314Entradas"

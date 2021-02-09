@@ -1,6 +1,7 @@
 [Main developers]
 Bertrand Songis (bsongis)
 André Bernet (kilrah)
+JC D. (3djc)
 Michael Blandford
 Damjan Adamic (projectkk2glider)
 Franck Aguerre (jivarofad)
@@ -9,6 +10,7 @@ Martin Hotař (mhotar)
 Maxim (Max) Paperno (mpaperno)
 Arne Schwabe (schwabe)
 Daniel Gorbea (dgatf)
+Neil Horne (elecpower)
 
 [Translators]
 [fr] Sebastien Charpentier (LapinFou)
@@ -2031,3 +2033,106 @@ Hubert Huber
 David Blum
 Noam Kfir
 Mats gårdstad friberg
+Jesper Frickmann
+Alan Bunker
+Emanuel Kircher
+Barry Andersen
+Gabriel Formanek
+Timothy Justiniano
+Kelvin Garcia Urbina
+Jan Lau
+Choon Wei Jonathan Tan
+Daniel Navas
+Ray Moss
+Markus Frielingsdorf
+Michael Hirschauer
+Jesse Frey
+Philipp Koch
+Robert Rubio
+Dennis G Miller
+Leonardo Garcia Osuna
+Antonio Carrasco Pastor
+Musa Pinar
+Jens Moder
+Josef de Beer
+Chad Mofford
+Pim Pouw
+Kenth Jonsson
+Gordon Westfall
+Jean-Michel Saves
+Roberto Orsello
+Luboš Konvalinka
+Lawrence Dorn
+Michael Dittmann
+Bernd Schmiedel
+Raoul Piccioli
+Uwe Probst
+Glendon Satchell
+Trevor Collins
+Horst Grashauser
+Miguel José Cárdenas Herrera
+Mike Jennings
+José Bernardo
+Carlos Dangle
+Gordon Evans
+Pablo Peinado Abad
+Carl Payne
+Adam Sosnowski
+Гасак Сергей
+SaltCtyRacingFPV
+Georg Bernhardt
+James Mildenhall
+Dave Plummer
+Ivan Mokris
+Patrick Daniels
+Stuart Olson
+Cory Znebel
+Andrey Yarovoy
+Christian Pons
+Burt Pickard-Richardson
+Michal Mesaros
+Conrad Young
+Martin Mathes
+Jens Rainer Hansen
+Mark Trible
+Marc Dubois
+Alan Wilkins
+Daniel Hryciuk
+Thomas Fox
+Sidney B Harden
+Augustas Sereika
+David Belletete
+Karl-Heinz Behn
+Lena Hjort
+Jan Langhorst
+Alberto Scotti
+John Rock
+Adam Kouse
+Ricardo Martins
+Noel Irwin
+Christoph Rausch
+Anthony Hrabusicky
+Sergio Tondini
+Aldo Visentin
+Greg Wilson
+Mark Sutton
+Lukas Kana
+Peter Newman
+Kevin Cave
+Arold Reinders
+Jason Plant
+John Beech
+Ian Parris
+Danny Music
+Eric Bissonnette
+Riso LTD
+William Booth
+Ferenc Kunkli
+Offer Shmuely
+Troy Atneosen
+Long Technologies
+John Jaugilas
+Jan-Hinrich Klee
+Hans-Reinhard Mette
+Alejandro Casals Oliver
+David Homewood

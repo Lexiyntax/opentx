@@ -92,7 +92,8 @@ void boardInit()
                          TRAINER_RCC_AHB1Periph |
                          TRAINER_MODULE_RCC_AHB1Periph |
                          BT_RCC_AHB1Periph |
-                         GYRO_RCC_AHB1Periph,
+                         GYRO_RCC_AHB1Periph |
+                         USB_CHARGER_RCC_AHB1Periph,
                          ENABLE);
 
   RCC_APB1PeriphClockCmd(ROTARY_ENCODER_RCC_APB1Periph |
@@ -193,6 +194,10 @@ void boardInit()
   toplcdInit();
 #endif
 
+#if defined(USB_CHARGER)
+  usbChargerInit();
+#endif
+
   if (HAS_SPORT_UPDATE_CONNECTOR()) {
     sportUpdateInit();
   }
@@ -267,6 +272,8 @@ void boardOff()
 
 #if defined (RADIO_TX12)
   #define BATTERY_DIVIDER 22830
+#elif defined (RADIO_T8)
+  #define BATTERY_DIVIDER 50000
 #else
   #define BATTERY_DIVIDER 26214
 #endif 

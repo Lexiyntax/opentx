@@ -208,7 +208,11 @@ enum TrainerMode {
   };
 #endif
 
-#if defined(RADIO_T16) && !defined(INTERNAL_MODULE_MULTI)
+#define TRAINER_MODE_MIN()               TRAINER_MODE_MASTER_TRAINER_JACK
+
+#if !defined(HARDWARE_EXTERNAL_MODULE)
+  #define TRAINER_MODE_MAX()             TRAINER_MODE_SLAVE
+#elif defined(RADIO_T16) && !defined(INTERNAL_MODULE_MULTI)
 #if  defined(BLUETOOTH)
   #define TRAINER_MODE_MAX()             TRAINER_MODE_SLAVE_BLUETOOTH
 #else
@@ -543,10 +547,6 @@ enum SwitchSources {
   SWSRC_TrimT6Up,
 #endif
 
-#if defined(PCBSKY9X)
-  SWSRC_REa,
-#endif
-
   SWSRC_FIRST_LOGICAL_SWITCH,
   SWSRC_SW1 = SWSRC_FIRST_LOGICAL_SWITCH,
   SWSRC_SW2,
@@ -674,7 +674,7 @@ enum MixSources {
   MIXSRC_GYRO2,                         LUA_EXPORT("gyry", "Gyro Y")
 #endif
 
-  MIXSRC_MAX,
+  MIXSRC_MAX,                          LUA_EXPORT("max", "MAX")
 
   MIXSRC_FIRST_HELI,
   MIXSRC_CYC1 = MIXSRC_FIRST_HELI,     LUA_EXPORT("cyc1", "Cyclic 1")

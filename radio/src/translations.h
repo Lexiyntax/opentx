@@ -161,6 +161,7 @@ extern const char STR_R9M_PXX2_RF_PROTOCOLS[];
 extern const char STR_DSM_PROTOCOLS[];
 extern const char STR_MULTI_PROTOCOLS[];
 extern const char STR_MULTI_POWER[];
+extern const char STR_SPORT_MODES[];
 
 #if defined(AFHDS3)
 extern const char STR_AFHDS3_ONE_TO_ONE_TELEMETRY[];
@@ -544,6 +545,7 @@ extern const char STR_SPECTRUM_ANALYSER_EXT[];
 extern const char STR_SPECTRUM_ANALYSER_INT[];
 extern const char STR_WAITING_FOR_RX[];
 extern const char STR_WAITING_FOR_TX[];
+extern const char STR_WAITING_FOR_MODULE[];
 extern const char STR_WARN_5VOLTS[];
 
 #if defined(SDCARD)
@@ -963,6 +965,7 @@ extern const char STR_ABOUT_PARENTS_3[];
 extern const char STR_ABOUT_PARENTS_4[];
 
 extern const char STR_AUTH_FAILURE[];
+extern const char STR_PROTOCOL[];
 
 #define CHR_HOUR   TR_CHR_HOUR
 #define CHR_INPUT  TR_CHR_INPUT

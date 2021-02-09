@@ -314,12 +314,15 @@
 #elif defined(PCBXLITE)
   #define LEN_VKEYS                    "\005"
   #define TR_VKEYS                     "Shift""Exit\0""Enter""Bas\0 ""Haut\0""Droit""Gauch"
-#elif defined(RADIO_T12)
+#elif defined(RADIO_FAMILY_JUMPER_T12)
   #define LEN_VKEYS                    "\005"
   #define TR_VKEYS                     "Exit\0""Enter""Down\0""Up\0  ""Right""Left\0"
 #elif defined(RADIO_TX12)
   #define LEN_VKEYS                    "\005"
   #define TR_VKEYS                     "Exit\0""Enter""Up\0  ""Down\0""SYS\0 ""MDL\0 ""TELE\0"
+#elif defined(RADIO_T8)
+  #define LEN_VKEYS                    "\005"
+  #define TR_VKEYS                     "RTN\0 ""ENTER""PGUP\0""PGDN\0""SYS\0 ""MDL\0 ""UP\0  ""DOWN\0"
 #elif defined(PCBTARANIS)
   #define LEN_VKEYS                    "\005"
   #define TR_VKEYS                     "Menu\0""Exit\0""Enter""Page\0""Plus\0""Moins"
@@ -461,8 +464,8 @@
 #if defined(PCBSKY9X) && defined(REVX)
   #define TR_OUTPUT_TYPE               INDENT "Sortie"
 #endif
-#define TR_PROTO                       TR(INDENT "Proto.", INDENT "Protocole")
-  #define TR_PPMFRAME                  INDENT "Trame PPM"
+#define TR_PROTOCOL                    TR("Proto.", "Protocole")
+#define TR_PPMFRAME                    INDENT "Trame PPM"
 #define TR_REFRESHRATE                 INDENT "Période"
 #define STR_WARN_BATTVOLTAGE           TR(INDENT "Signal est VBAT: ", INDENT "ATTENTION: signal est à VBAT: ")
 #define TR_WARN_5VOLTS                 "Warning: output level is 5 volts"
@@ -726,6 +729,7 @@
 #define TR_NO_SDCARD                   "Carte SD indisponible"
 #define TR_WAITING_FOR_RX              "Attente du RX..."
 #define TR_WAITING_FOR_TX              "Attente du TX..."
+#define TR_WAITING_FOR_MODULE          TR("Waiting module", "Waiting for module...")
 #define TR_NO_TOOLS                    "Pas d'outils dispo"
 #define TR_NORMAL                      "Normal"
 #define TR_NOT_INVERTED                "Non inv"
@@ -801,7 +805,7 @@
 #define TR_NO_MODELS_ON_SD             "Aucun modèle SD"
 #define TR_NO_BITMAPS_ON_SD            "Aucun Bitmap SD"
 #define TR_NO_SCRIPTS_ON_SD            "Aucun Script SD"
-#define TR_SCRIPT_SYNTAX_ERROR         "Erreur syntaxe script"
+#define TR_SCRIPT_SYNTAX_ERROR          TR("Erreur syntaxe", "Erreur syntaxe script")
 #define TR_SCRIPT_PANIC                "Script bloqué"
 #define TR_SCRIPT_KILLED               "Script interrompu"
 #define TR_SCRIPT_ERROR                "Erreur inconnue"
@@ -1137,8 +1141,16 @@
 #define TR_ABOUT_MARTIN_1              "Martin Hotar"
 #define TR_ABOUT_MARTIN_2              "Design graphique"
 
-#if defined(PCBTARANIS)
+#if defined(MANUFACTURER_FRSKY)
   #define TR_ABOUT_HARDWARE_1          "FrSky"
+  #define TR_ABOUT_HARDWARE_2          "Développeur/fabricant"
+  #define TR_ABOUT_HARDWARE_3          "du matériel"
+#elif defined(MANUFACTURER_RADIOMASTER)
+  #define TR_ABOUT_HARDWARE_1          "Radiomaster"
+  #define TR_ABOUT_HARDWARE_2          "Développeur/fabricant"
+  #define TR_ABOUT_HARDWARE_3          "du matériel"
+#elif defined(MANUFACTURER_JUMPER)
+  #define TR_ABOUT_HARDWARE_1          "JumperRC"
   #define TR_ABOUT_HARDWARE_2          "Développeur/fabricant"
   #define TR_ABOUT_HARDWARE_3          "du matériel"
 #else

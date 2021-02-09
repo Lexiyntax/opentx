@@ -48,6 +48,9 @@ inline int MAX_SWITCHES(Board::Type board, int version)
   if (IS_FAMILY_T12(board))
     return 8;
 
+  if (IS_TARANIS_X7(board))
+    return 8;
+
   return Boards::getCapability(board, Board::Switches);
 }
 
@@ -73,6 +76,8 @@ inline int MAX_POTS(Board::Type board, int version)
 {
   if (version <= 218 && IS_FAMILY_HORUS_OR_T16(board))
     return 3;
+  if (IS_FAMILY_T12(board))
+    return 2;
   return Boards::getCapability(board, Board::Pots);
 }
 
@@ -82,6 +87,8 @@ inline int MAX_POTS_STORAGE(Board::Type board, int version)
     return 3;
   if (version >= 219 && IS_FAMILY_HORUS_OR_T16(board))
     return 5;
+  if (IS_FAMILY_T12(board))
+    return 2;
   return Boards::getCapability(board, Board::Pots);
 }
 
@@ -89,6 +96,8 @@ inline int MAX_POTS_SOURCES(Board::Type board, int version)
 {
   if (version <= 218 && IS_FAMILY_HORUS_OR_T16(board))
     return 5;
+  if (IS_FAMILY_T12(board))
+    return 2;
   return Boards::getCapability(board, Board::Pots);
 }
 
@@ -1406,8 +1415,7 @@ class CustomFunctionsConversionTable: public ConversionTable {
         addConversion(FuncAdjustGV1+i, val);
       val++;
       addConversion(FuncVolume, val++);
-      addConversion(FuncSetFailsafeInternalModule, val);
-      addConversion(FuncSetFailsafeExternalModule, val++);
+      addConversion(FuncSetFailsafe, val++);
       addConversion(FuncRangeCheckInternalModule, val);
       addConversion(FuncRangeCheckExternalModule, val++);
       addConversion(FuncBindInternalModule, val);
@@ -1519,9 +1527,6 @@ class ArmCustomFunctionField: public TransformedField {
         else if (fn.func >= FuncSetTimer1 && fn.func <= FuncSetTimer3) {
           *((uint16_t *)_param) = fn.param;
           *((uint8_t *)(_param+3)) = fn.func - FuncSetTimer1;
-        }
-        else if (fn.func >= FuncSetFailsafeInternalModule && fn.func <= FuncSetFailsafeExternalModule) {
-          *((uint16_t *)_param) = fn.func - FuncSetFailsafeInternalModule;
         }
         else if (fn.func >= FuncRangeCheckInternalModule && fn.func <= FuncRangeCheckExternalModule) {
           *((uint16_t *)_param) = fn.func - FuncRangeCheckInternalModule;
@@ -2306,7 +2311,8 @@ OpenTxModelData::OpenTxModelData(ModelData & modelData, Board::Type board, unsig
       internalField.Append(new UnsignedField<2>(this, modelData.timers[i].countdownBeep));
       internalField.Append(new BoolField<1>(this, modelData.timers[i].minuteBeep));
       internalField.Append(new UnsignedField<2>(this, modelData.timers[i].persistent));
-      internalField.Append(new SpareBitsField<3>(this));
+      internalField.Append(new SignedField<2>(this, modelData.timers[i].countdownStart));
+      internalField.Append(new UnsignedField<1>(this, modelData.timers[i].direction));
       if (HAS_LARGE_LCD(board))
         internalField.Append(new ZCharField<8>(this, modelData.timers[i].name, "Timer name"));
       else

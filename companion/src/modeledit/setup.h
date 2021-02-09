@@ -26,7 +26,8 @@
 
 constexpr char MIMETYPE_TIMER[] = "application/x-companion-timer";
 
-class RawSwitchFilterItemModel;
+class CompoundItemModelFactory;
+class FilteredItemModel;
 
 namespace Ui {
   class Setup;
@@ -39,7 +40,8 @@ class TimerPanel : public ModelPanel
     Q_OBJECT
 
   public:
-    TimerPanel(QWidget *parent, ModelData & model, TimerData & timer, GeneralSettings & generalSettings, Firmware * firmware, QWidget *prevFocus, RawSwitchFilterItemModel * switchModel);
+    TimerPanel(QWidget *parent, ModelData & model, TimerData & timer, GeneralSettings & generalSettings, Firmware * firmware,
+               QWidget *prevFocus, FilteredItemModel * switchModel);
     virtual ~TimerPanel();
 
     virtual void update();
@@ -49,11 +51,18 @@ class TimerPanel : public ModelPanel
     void onModeChanged(int index);
     void on_value_editingFinished();
     void on_minuteBeep_toggled(bool checked);
+    void on_countdownBeep_currentIndexChanged(int index);
     void on_name_editingFinished();
+    void onItemModelAboutToBeUpdated();
+    void onItemModelUpdateComplete();
+
+  signals:
+    void nameChanged();
 
   private:
     TimerData & timer;
     Ui::Timer * ui;
+    void connectItemModelEvents(const FilteredItemModel * itemModel);
 };
 
 class ModulePanel : public ModelPanel
@@ -125,7 +134,7 @@ class SetupPanel : public ModelPanel
     Q_OBJECT
 
   public:
-    SetupPanel(QWidget *parent, ModelData & model, GeneralSettings & generalSettings, Firmware * firmware);
+    SetupPanel(QWidget *parent, ModelData & model, GeneralSettings & generalSettings, Firmware * firmware, CompoundItemModelFactory * sharedItemModels);
     virtual ~SetupPanel();
 
     virtual void update();
@@ -133,7 +142,6 @@ class SetupPanel : public ModelPanel
   signals:
     void extendedLimitsToggled();
     void updated();
-    void timerUpdated();
 
   private slots:
     void on_name_editingFinished();
@@ -164,6 +172,9 @@ class SetupPanel : public ModelPanel
     void cmTimerPaste();
     void cmTimerMoveDown();
     void cmTimerMoveUp();
+    void onTimerNameChanged();
+    void onItemModelAboutToBeUpdated();
+    void onItemModelUpdateComplete();
 
   private:
     Ui::Setup *ui;
@@ -185,6 +196,11 @@ class SetupPanel : public ModelPanel
     bool moveTimerDownAllowed() const;
     bool moveTimerUpAllowed() const;
     void swapTimerData(int idx1, int idx2);
+    CompoundItemModelFactory * sharedItemModels;
+    FilteredItemModel * rawSwitchFilteredModel;
+    FilteredItemModel * thrSourceFilteredModel;
+    void updateItemModels();
+    void connectItemModelEvents(const FilteredItemModel * itemModel);
 };
 
 #endif // _SETUP_H_
