@@ -21,6 +21,7 @@
 #include "opentx.h"
 #include "multi.h"
 #include "pulses/afhds3.h"
+#include "mixer_scheduler.h"
 
 uint8_t telemetryStreaming = 0;
 uint8_t telemetryRxBuffer[TELEMETRY_RX_PACKET_SIZE];   // Receive buffer. 9 bytes (full packet), worst case 18 bytes with byte-stuffing (+1)
@@ -375,3 +376,85 @@ OutputTelemetryBuffer outputTelemetryBuffer __DMA;
 #if defined(LUA)
 Fifo<uint8_t, LUA_TELEMETRY_INPUT_FIFO_SIZE> * luaInputTelemetryFifo = NULL;
 #endif
+
+#if defined(HARDWARE_INTERNAL_MODULE)
+static ModuleSyncStatus moduleSyncStatus[NUM_MODULES];
+
+ModuleSyncStatus &getModuleSyncStatus(uint8_t moduleIdx)
+{
+  return moduleSyncStatus[moduleIdx];
+}
+#else
+static ModuleSyncStatus moduleSyncStatus;
+
+ModuleSyncStatus &getModuleSyncStatus(uint8_t moduleIdx)
+{
+  return moduleSyncStatus;
+}
+#endif
+
+ModuleSyncStatus::ModuleSyncStatus()
+{
+  memset(this, 0, sizeof(ModuleSyncStatus));
+}
+
+void ModuleSyncStatus::update(uint16_t newRefreshRate, int16_t newInputLag)
+{
+  if (!newRefreshRate)
+    return;
+  
+  if (newRefreshRate < MIN_REFRESH_RATE)
+    newRefreshRate = newRefreshRate * (MIN_REFRESH_RATE / (newRefreshRate + 1));
+  else if (newRefreshRate > MAX_REFRESH_RATE)
+    newRefreshRate = MAX_REFRESH_RATE;
+
+  refreshRate = newRefreshRate;
+  inputLag    = newInputLag;
+  currentLag  = newInputLag;
+  lastUpdate  = get_tmr10ms();
+
+  TRACE("[SYNC] update rate = %dus; lag = %dus",refreshRate,currentLag);
+}
+
+uint16_t ModuleSyncStatus::getAdjustedRefreshRate()
+{
+  int16_t lag = currentLag;
+  int32_t newRefreshRate = refreshRate;
+
+  if (lag == 0) {
+    return refreshRate;
+  }
+  
+  newRefreshRate += lag;
+  
+  if (newRefreshRate < MIN_REFRESH_RATE) {
+      newRefreshRate = MIN_REFRESH_RATE;
+  }
+  else if (newRefreshRate > MAX_REFRESH_RATE) {
+    newRefreshRate = MAX_REFRESH_RATE;
+  }
+
+  currentLag -= newRefreshRate - refreshRate;
+  TRACE("[SYNC] mod rate = %dus; lag = %dus",newRefreshRate,currentLag);
+  
+  return (uint16_t)newRefreshRate;
+}
+
+void ModuleSyncStatus::getRefreshString(char * statusText)
+{
+  if (!isValid()) {
+    return;
+  }
+
+  char * tmp = statusText;
+#if defined(DEBUG)
+  *tmp++ = 'L';
+  tmp = strAppendSigned(tmp, inputLag, 5);
+  tmp = strAppend(tmp, "R");
+  tmp = strAppendUnsigned(tmp, refreshRate, 5);
+#else
+  tmp = strAppend(tmp, "Sync ");
+  tmp = strAppendUnsigned(tmp, refreshRate);
+#endif
+  tmp = strAppend(tmp, "us");
+}

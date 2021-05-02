@@ -19,8 +19,6 @@
  */
 
 #include "sensordata.h"
-
-#include "radiodata.h"
 #include "modeldata.h"
 #include "eeprominterface.h"
 #include "compounditemmodels.h"
@@ -35,7 +33,7 @@ void SensorData::updateUnit()
 
 QString SensorData::nameToString(int index) const
 {
-  return RadioData::getElementName(tr("TELE"), index + 1, label);
+  return DataHelpers::getElementName(tr("TELE"), index + 1, label);
 }
 
 QString SensorData::getOrigin(const ModelData * model) const
@@ -77,9 +75,9 @@ QString SensorData::cellIndexToString() const
   return cellIndexToString(index);
 }
 
-QString SensorData::unitToString() const
+QString SensorData::unitToString(bool hideRaw) const
 {
-  return unitToString(unit);
+  return unitToString(unit, hideRaw);
 }
 
 QString SensorData::precToString() const
@@ -171,7 +169,7 @@ QString SensorData::paramsToString(const ModelData * model) const
       int precsn = prec == 0 ? 1 : pow(10, prec);
       str.append(QString(FMT_LABEL_VALUE).arg(tr("Ratio")).arg((float)ratio / 10));
       str.append(QString(FMT_LABEL_VALUE).arg(tr("Offset")).arg(QString::number((float)offset / precsn, 'f', prec)));
-      str.append(QString(FMT_LABEL_VALUE).arg(tr("Auto Offset")).arg(boolToString(autoOffset)));
+      str.append(QString(FMT_LABEL_VALUE).arg(tr("Auto Offset")).arg(DataHelpers::boolToString(autoOffset, DataHelpers::BOOL_FMT_YN)));
     }
     else {
       str.append(QString(FMT_LABEL_VALUE).arg(tr("Blades")).arg(ratio)); //  TODO refactor to dedicated RPMS field
@@ -180,15 +178,15 @@ QString SensorData::paramsToString(const ModelData * model) const
   }
 
   if (mask & SENSOR_ISCONFIGURABLE)
-    str.append(QString(FMT_LABEL_VALUE).arg(tr("Filter")).arg(boolToString(filter)));
+    str.append(QString(FMT_LABEL_VALUE).arg(tr("Filter")).arg(DataHelpers::boolToString(filter, DataHelpers::BOOL_FMT_YN)));
 
   if (type == TELEM_TYPE_CALCULATED)
-    str.append(QString(FMT_LABEL_VALUE).arg(tr("Persist")).arg(boolToString(persistent)));
+    str.append(QString(FMT_LABEL_VALUE).arg(tr("Persist")).arg(DataHelpers::boolToString(persistent, DataHelpers::BOOL_FMT_YN)));
 
   if (mask & SENSOR_HAS_POSITIVE)
-    str.append(QString(FMT_LABEL_VALUE).arg(tr("Positive")).arg(boolToString(onlyPositive)));
+    str.append(QString(FMT_LABEL_VALUE).arg(tr("Positive")).arg(DataHelpers::boolToString(onlyPositive, DataHelpers::BOOL_FMT_YN)));
 
-  str.append(QString(FMT_LABEL_VALUE).arg(tr("Log")).arg(boolToString(logs)));
+  str.append(QString(FMT_LABEL_VALUE).arg(tr("Log")).arg(DataHelpers::boolToString(logs, DataHelpers::BOOL_FMT_YN)));
 
   return str;
 }
@@ -344,11 +342,11 @@ QString SensorData::sourceToString(const ModelData * model, const int index, con
 }
 
 //  static
-QString SensorData::unitToString(const int value)
+QString SensorData::unitToString(const int value, bool hideRaw)
 {
   switch (value) {
     case UNIT_RAW:
-      return tr("Raw (-)");
+      return hideRaw ? QString() : tr("Raw (-)");
     case UNIT_VOLTS:
       return tr("V");
     case UNIT_AMPS:
@@ -427,6 +425,28 @@ bool SensorData::isSourceAvailable(const ModelData * model, const int index)
   return false;
 }
 
+#define RSSI_ID                   0xF101
+
+//  static
+bool SensorData::isRssiSensorAvailable(const ModelData * model, const int value)
+{
+  if (value == 0)
+    return true;
+  else {
+    const SensorData &sensor = model->sensorData[abs(value) - 1];
+    return (sensor.isAvailable() && sensor.id == RSSI_ID);
+  }
+}
+
+//  static
+QString SensorData::rssiSensorToString(const ModelData * model, const int value)
+{
+  if (value == 0)
+    return tr("(default)");
+  else
+    return sourceToString(model, value);
+}
+
 //  static
 AbstractStaticItemModel * SensorData::typeItemModel()
 {
@@ -476,7 +496,7 @@ AbstractStaticItemModel * SensorData::unitItemModel()
   mdl->setName("sensordata.unit");
 
   for (int i = 0; i <= UNIT_MAX; i++) {
-    QString str = unitToString(i);
+    QString str = unitToString(i, false);
     if (str != CPN_STR_UNKNOWN_ITEM)
       mdl->appendToItemList(str, i);
   }

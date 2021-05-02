@@ -234,9 +234,10 @@
 #endif
 
 #define TR_SF_SCREENSHOT    			"Screenshot"
+#define TR_SF_RACING_MODE         "RacingMode"
 #define TR_SF_RESERVE        			"[Reserve]\0"
 
-#define TR_VFSWFUNC         			 TR_SF_SAFETY "Lehrer \0  ""Inst. Trim""Rücksetz.\0""Setze \0   " TR_ADJUST_GVAR "Lautstr.\0 " "SetFailsfe" "RangeCheck" "ModuleBind" TR_SOUND TR_PLAY_TRACK TR_PLAY_VALUE TR_SF_RESERVE TR_SF_PLAY_SCRIPT TR_SF_RESERVE TR_SF_BG_MUSIC TR_VVARIO TR_HAPTIC TR_SDCLOGS "LCD Licht\0" TR_SF_SCREENSHOT TR_SF_TEST
+#define TR_VFSWFUNC         			 TR_SF_SAFETY "Lehrer \0  ""Inst. Trim""Rücksetz.\0""Setze \0   " TR_ADJUST_GVAR "Lautstr.\0 " "SetFailsfe" "RangeCheck" "ModuleBind" TR_SOUND TR_PLAY_TRACK TR_PLAY_VALUE TR_SF_RESERVE TR_SF_PLAY_SCRIPT TR_SF_RESERVE TR_SF_BG_MUSIC TR_VVARIO TR_HAPTIC TR_SDCLOGS "LCD Licht\0" TR_SF_SCREENSHOT TR_SF_RACING_MODE TR_SF_TEST
 
 #define LEN_VFSWRESET         			 TR("\004", "\011")
 
@@ -263,7 +264,7 @@
   #define LEN_VUNITSSYSTEM             TR("\006", "\012")
   #define TR_VUNITSSYSTEM              TR("Metrik""Imper.", "Metrisch\0 ""Imperial\0 ")
   #define LEN_VTELEMUNIT               "\003"
-  #define TR_VTELEMUNIT        			"-\0 ""V\0 ""A\0 ""mA\0""kts""m/s""f/s""kmh""mph""m\0 ""ft\0""@C\0""@F\0""%\0 ""mAh""W\0 ""mW\0""dB\0""rpm""g\0 ""@\0 ""rad""ml\0""fOz""mlm""Hz\0""mS\0""uS\0"
+  #define TR_VTELEMUNIT        			"-\0 ""V\0 ""A\0 ""mA\0""kts""m/s""f/s""kmh""mph""m\0 ""ft\0""@C\0""@F\0""%\0 ""mAh""W\0 ""mW\0""dB\0""rpm""g\0 ""@\0 ""rad""ml\0""fOz""mlm""Hz\0""mS\0""uS\0""km\0"
 
 #define STR_V                  			(STR_VTELEMUNIT+1)
 #define STR_A                 			 (STR_VTELEMUNIT+4)
@@ -641,6 +642,7 @@
   #define TR_RECEIVER                    "Empfänger"
 #define TR_MULTI_RFTUNE        			TR(INDENT "RF Freq.", INDENT "RF Freq. Feintuning")
 #define TR_MULTI_RFPOWER               "RF power"
+#define TR_MULTI_WBUS                  "Output"
 #define TR_MULTI_TELEMETRY             "Telemetry"
 #define TR_MULTI_VIDFREQ       			TR(INDENT "Vid. Freq.", INDENT "Video Frequenz")
 #define TR_RFPOWER              		"RF Power"
@@ -1230,6 +1232,7 @@
 #define TR_JITTER_FILTER               "ADC Filter"
 #define TR_RTC_CHECK                   TR("Check RTC", "Check RTC voltage")
 #define TR_AUTH_FAILURE                "Auth-failure"
+#define TR_RACING_MODE                 "Racing mode"
 
 // ----------------------------------------------------------------
 #define ZSTR_VFR                       "VFR"
@@ -1387,3 +1390,6 @@
 #define ZSTR_SERVO_VOLTAGE             "SrvV"
 #define ZSTR_SERVO_TEMPERATURE         "SrvT"
 #define ZSTR_SERVO_STATUS              "SrvS"
+#define ZSTR_LOSS                      "Loss"
+#define ZSTR_SPEED                     "Spd "
+#define ZSTR_FLOW                      "Flow"

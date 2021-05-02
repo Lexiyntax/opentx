@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "helpersdata.h"
+#include "datahelpers.h"
 
 #include <QtCore>
 
@@ -188,7 +188,7 @@ class SensorData {
     QString typeToString() const;
     QString formulaToString() const;
     QString cellIndexToString() const;
-    QString unitToString() const;
+    QString unitToString(bool hideRaw = true) const;
     QString precToString() const;
     int getMask() const;
     QString paramsToString(const ModelData * model) const;
@@ -203,9 +203,10 @@ class SensorData {
     static QString typeToString(const int value);
     static QString formulaToString(const int value);
     static QString cellIndexToString(const int value);
-    static QString unitToString(const int value);
+    static QString unitToString(const int value, bool hideRaw = true);
     static QString precToString(const int value);
-    static QString boolToString(const bool value) { return value ? tr("Y") : tr("N"); }
+    static bool isRssiSensorAvailable(const ModelData * model, const int value);
+    static QString rssiSensorToString(const ModelData * model, const int value);
 
     static AbstractStaticItemModel * typeItemModel();
     static AbstractStaticItemModel * formulaItemModel();
