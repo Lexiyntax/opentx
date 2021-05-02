@@ -21,6 +21,10 @@
 #include "opentx.h"
 #include <math.h>
 
+#if defined(LIBOPENUI)
+  #include "libopenui.h"
+#endif
+
 extern RTOS_MUTEX_HANDLE audioMutex;
 
 const int16_t sineValues[] =
@@ -161,7 +165,7 @@ const char * const unitsFilenames[] = {
   "hertz",
   "ms",
   "us",
-  "spare4",
+  "km",
   "spare5",
   "spare6",
   "spare7",

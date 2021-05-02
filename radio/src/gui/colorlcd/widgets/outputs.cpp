@@ -19,16 +19,20 @@
  */
 
 #include "opentx.h"
+#include "widgets_container_impl.h"
 
 #define RECT_BORDER                    1
 #define ROW_HEIGHT                     17
 
 #define VIEW_CHANNELS_LIMIT_PCT        (g_model.extendedLimits ? LIMIT_EXT_PERCENT : 100)
 
+constexpr uint32_t OUTPUTS_REFRESH = 1000 / 5; // 5 Hz
+
+
 class OutputsWidget: public Widget
 {
   public:
-    OutputsWidget(const WidgetFactory * factory, Window * parent, const rect_t & rect, Widget::PersistentData * persistentData):
+    OutputsWidget(const WidgetFactory * factory, FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData):
       Widget(factory, parent, rect, persistentData)
     {
     }
@@ -79,12 +83,12 @@ class OutputsWidget: public Widget
 
     void twoColumns(BitmapBuffer * dc)
     {
-      uint8_t endColumn = drawChannels(dc, 0, 0, width() / 2, height(),
+      uint8_t endColumn = drawChannels(dc, 0, 0, (width() / 2) - 1, height(),
                                        persistentData->options[0].value.unsignedValue,
                                        persistentData->options[1].value.boolValue,
                                        persistentData->options[2].value.unsignedValue);
 
-      drawChannels(dc, width() / 2 + 2, 0, width() / 2, height(), endColumn + 1,
+      drawChannels(dc, width() / 2, 0, (width() / 2) - 1, height(), endColumn + 1,
                    persistentData->options[1].value.boolValue,
                    persistentData->options[2].value.unsignedValue);
     }
@@ -99,11 +103,24 @@ class OutputsWidget: public Widget
 
     void checkEvents() override
     {
+      Widget::checkEvents();
+
+      // Last time we refreshed the window
+      uint32_t now = RTOS_GET_MS();
+      if (now - lastRefresh >= OUTPUTS_REFRESH) {
+        lastRefresh = now;
+        invalidate();
+      }
+      
       invalidate();
     }
 
 
     static const ZoneOption options[];
+
+  protected:
+    // Last time we refreshed the window
+    uint32_t lastRefresh = 0;
 };
 
 const ZoneOption OutputsWidget::options[] = {

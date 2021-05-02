@@ -21,6 +21,12 @@
 #include "opentx.h"
 #include "bootloader_flash.h"
 
+#if defined(LIBOPENUI)
+  #include "libopenui.h"
+#else
+  #include "libopenui/src/libopenui_file.h"
+#endif
+
 bool isBootloader(const char * filename)
 {
   FIL file;
@@ -35,7 +41,7 @@ bool isBootloader(const char * filename)
   return isBootloaderStart(buffer);
 }
 
-void BootloaderDeviceFirmwareUpdate::flashFirmware(const char *filename, ProgressHandler progressHandler)
+void BootloaderFirmwareUpdate::flashFirmware(const char * filename, ProgressHandler progressHandler)
 {
   FIL file;
   uint8_t buffer[1024];

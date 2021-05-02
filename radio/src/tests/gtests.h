@@ -27,6 +27,7 @@
 
 #define SWAP_DEFINED
 #include "opentx.h"
+#include "model_init.h"
 
 #define CHANNEL_MAX (1024*256)
 
@@ -104,7 +105,7 @@ class OpenTxTest : public testing::Test
       SYSTEM_RESET();
       MODEL_RESET();
       MIXER_RESET();
-      modelDefault(0);
+      setModelDefaults(0);
       RADIO_RESET();
     }
 };

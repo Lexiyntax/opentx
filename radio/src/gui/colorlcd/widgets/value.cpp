@@ -19,23 +19,20 @@
  */
 
 #include "opentx.h"
+#include "widgets_container_impl.h"
 
 const coord_t NUMBERS_PADDING = 4;
 
 class ValueWidget: public Widget
 {
   public:
-    ValueWidget(const WidgetFactory * factory, Window * parent, const rect_t & rect, Widget::PersistentData * persistentData):
+    ValueWidget(const WidgetFactory * factory, FormGroup * parent, const rect_t & rect, Widget::PersistentData * persistentData):
       Widget(factory, parent, rect, persistentData)
     {
     }
 
     void paint(BitmapBuffer * dc) override
     {
-      // draw the background and border
-      dc->clear(DEFAULT_BGCOLOR);
-      dc->drawFilledRect(0,0, width(), height(), SOLID, MAINVIEW_PANES_COLOR | OPACITY(5));
-
       // get source from options[0]
       mixsrc_t field = persistentData->options[0].value.unsignedValue;
 
@@ -50,8 +47,8 @@ class ValueWidget: public Widget
         yValue = 14;
         xLabel = 0;
         yLabel = 0;
-        attrValue = LEFT | NO_UNIT | FONT(XS);
-        attrLabel = FONT(XS);
+        attrValue = LEFT | NO_UNIT | FONT(L);
+        attrLabel = LEFT;
       }
       else if (height() < 50) {
         xValue = width() - NUMBERS_PADDING;
@@ -112,6 +109,8 @@ class ValueWidget: public Widget
 
     void checkEvents() override
     {
+      Widget::checkEvents();
+
       auto newValue = getValue(persistentData->options[0].value.unsignedValue);
       if (lastValue != newValue) {
         lastValue = newValue;

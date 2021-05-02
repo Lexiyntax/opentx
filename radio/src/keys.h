@@ -137,6 +137,11 @@ inline bool IS_KEY_EVT(event_t evt, uint8_t key)
   #define EVT_ROTARY_LONG              EVT_KEY_LONG(KEY_ENTER)
   #define IS_NEXT_EVENT(event)         (event==EVT_KEY_FIRST(KEY_DOWN) || event==EVT_KEY_REPT(KEY_DOWN))
   #define IS_PREVIOUS_EVENT(event)     (event==EVT_KEY_FIRST(KEY_UP) || event==EVT_KEY_REPT(KEY_UP))
+#elif defined(RADIO_T8)
+  #define EVT_ROTARY_BREAK             EVT_KEY_BREAK(KEY_ENTER)
+  #define EVT_ROTARY_LONG              EVT_KEY_LONG(KEY_ENTER)
+  #define IS_NEXT_EVENT(event)         (event==EVT_KEY_FIRST(KEY_DOWN) || event==EVT_KEY_REPT(KEY_DOWN))
+  #define IS_PREVIOUS_EVENT(event)     (event==EVT_KEY_FIRST(KEY_UP) || event==EVT_KEY_REPT(KEY_UP))
 #elif defined(PCBFRSKY) && defined(ROTARY_ENCODER_NAVIGATION)
   #define EVT_ROTARY_BREAK             EVT_KEY_BREAK(KEY_ENTER)
   #define EVT_ROTARY_LONG              EVT_KEY_LONG(KEY_ENTER)
@@ -155,9 +160,9 @@ inline bool IS_KEY_EVT(event_t evt, uint8_t key)
 class Key
 {
   private:
-    uint8_t m_vals;
-    uint8_t m_cnt;
-    uint8_t m_state;
+    uint8_t m_vals  = 0;
+    uint8_t m_cnt   = 0;
+    uint8_t m_state = 0;
   public:
     void input(bool val);
     bool state() const { return m_vals > 0; }
@@ -169,7 +174,7 @@ class Key
 extern Key keys[NUM_KEYS];
 extern event_t s_evt;
 
-inline void putEvent(event_t evt)
+inline void pushEvent(event_t evt)
 {
   s_evt = evt;
 }

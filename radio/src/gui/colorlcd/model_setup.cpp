@@ -171,7 +171,7 @@ class RegisterDialog: public Dialog {
 
       // Register ID
       new StaticText(form, grid.getLabelSlot(), STR_REG_ID);
-      auto edit = new TextEdit(form, grid.getFieldSlot(), g_model.modelRegistrationID, sizeof(g_model.modelRegistrationID));
+      auto edit = new RadioTextEdit(form, grid.getFieldSlot(), g_model.modelRegistrationID, sizeof(g_model.modelRegistrationID));
       grid.nextLine();
 
       // UID
@@ -218,7 +218,7 @@ class RegisterDialog: public Dialog {
         rect_t rect = waiting->getRect();
         waiting->deleteLater();
 
-        rxName = new TextEdit(&content->form, rect, reusableBuffer.moduleSetup.pxx2.registerRxName, PXX2_LEN_RX_NAME);
+        rxName = new RadioTextEdit(&content->form, rect, reusableBuffer.moduleSetup.pxx2.registerRxName, PXX2_LEN_RX_NAME);
         rect = exitButton->getRect();
         auto okButton = new TextButton(&content->form, rect, "OK",
                                     [=]() -> int8_t {
@@ -343,7 +343,8 @@ void BindWaitDialog::checkEvents()
   Dialog::checkEvents();
 }
 
-class ReceiverButton: public TextButton {
+class ReceiverButton: public TextButton
+{
   public:
     ReceiverButton(FormGroup * parent, rect_t rect, uint8_t moduleIdx, uint8_t receiverIdx):
       TextButton(parent, rect, STR_BIND, [=]() {
@@ -997,7 +998,7 @@ void ModelSetupPage::build(FormWindow * window)
 
   // Model name
   new StaticText(window, grid.getLabelSlot(), STR_MODELNAME);
-  auto text = new TextEdit(window, grid.getFieldSlot(), g_model.header.name, sizeof(g_model.header.name));
+  auto text = new RadioTextEdit(window, grid.getFieldSlot(), g_model.header.name, sizeof(g_model.header.name));
   text->setChangeHandler([=] {
       modelslist.load();
       auto model = modelslist.getCurrentModel();
@@ -1034,7 +1035,7 @@ void ModelSetupPage::build(FormWindow * window)
     // Timer name
     new StaticText(window, grid.getLabelSlot(true), STR_NAME);
     grid.nextLine();
-    new TextEdit(group, timerGrid.getSlot(), timer->name, LEN_TIMER_NAME);
+    new RadioTextEdit(group, timerGrid.getSlot(), timer->name, LEN_TIMER_NAME);
     timerGrid.nextLine();
 
     // Timer mode
@@ -1153,7 +1154,7 @@ void ModelSetupPage::build(FormWindow * window)
         if (j > 0 && (j % 3) == 0)
           switchesGrid.nextLine();
         auto button = new TextButton(group, switchesGrid.getSlot(3, j % 3), switchWarninglabel(i), nullptr,
-                                     (bfGet(g_model.switchWarningState, 3 * i, 3) == 0 ? 0 : BUTTON_CHECKED));
+                                     OPAQUE | (bfGet(g_model.switchWarningState, 3 * i, 3) == 0 ? 0 : BUTTON_CHECKED));
         button->setPressHandler([button, i] {
             swarnstate_t newstate = bfGet(g_model.switchWarningState, 3 * i, 3);
             if (newstate == 1 && SWITCH_CONFIG(i) != SWITCH_3POS)
@@ -1188,7 +1189,7 @@ void ModelSetupPage::build(FormWindow * window)
                            SET_DIRTY();
                            return bfSingleBitGet<BeepANACenter>(g_model.beepANACenter, i);
                        },
-                       bfSingleBitGet(g_model.beepANACenter, i) ? BUTTON_CHECKED : 0);
+                       OPAQUE | (bfSingleBitGet(g_model.beepANACenter, i) ? BUTTON_CHECKED : 0));
         j++;
       }
     }

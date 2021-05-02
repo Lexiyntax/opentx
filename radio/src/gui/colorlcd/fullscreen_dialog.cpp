@@ -21,6 +21,7 @@
 #include "fullscreen_dialog.h"
 #include "mainwindow.h"
 #include "opentx.h"
+#include "libopenui.h"
 
 FullScreenDialog::FullScreenDialog(uint8_t type, std::string title, std::string message, std::string action, const std::function<void(void)> & confirmHandler):
   FormGroup(MainWindow::instance(), {0, 0, LCD_W, LCD_H}, OPAQUE),
@@ -148,7 +149,7 @@ void FullScreenDialog::runForever()
     MainWindow::instance()->run(false);
   }
 
-  Window::deleteLater();
+  deleteLater();
 }
 
 void raiseAlert(const char * title, const char * msg, const char * action, uint8_t sound)

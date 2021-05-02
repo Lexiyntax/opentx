@@ -19,6 +19,18 @@
  */
 
 #include "menu_screen.h"
+#include "layout.h"
+#include "datastructs.h"
+
+class ScreenUserInterfacePage: public PageTab {
+  public:
+    ScreenUserInterfacePage(ScreenMenu* menu);
+
+    void build(FormWindow * window) override;
+
+  protected:
+    ScreenMenu * menu;
+};
 
 class ScreenAddPage: public PageTab {
   public:
@@ -33,16 +45,20 @@ class ScreenAddPage: public PageTab {
 
 class ScreenSetupPage: public PageTab {
   public:
-    ScreenSetupPage(ScreenMenu * menu, uint8_t pageIndex);
+    ScreenSetupPage(ScreenMenu * menu, unsigned pageIndex, unsigned customScreenIndex);
 
     void build(FormWindow * window) override;
 
   protected:
     ScreenMenu * menu;
-    uint8_t pageIndex;
-    FormGroup * optionsWindow = nullptr;
-    TextButton * setupWidgetsButton = nullptr;
-    FormField * layoutChoice = nullptr;
+    unsigned pageIndex;
+    unsigned customScreenIndex;
+};
 
-    void updateLayoutOptions();
+class SetupWidgetsPageSlot: public Button
+{
+  public:
+    SetupWidgetsPageSlot(FormGroup * parent, const rect_t & rect, WidgetsContainer* container, uint8_t slotIndex);
+
+    void paint(BitmapBuffer * dc) override;
 };

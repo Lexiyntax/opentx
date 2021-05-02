@@ -53,7 +53,18 @@ void preModelLoad()
   }
   pauseMixerCalculations();
 
+#if defined(HARDWARE_INTERNAL_MODULE)
+  stopPulsesInternalModule();
+#endif
+#if defined(HARDWARE_EXTERNAL_MODULE)
+  stopPulsesExternalModule();
+#endif
+
   stopTrainer();
+
+#if defined(COLORLCD)
+  deleteCustomScreens();
+#endif
 }
 
 void postRadioSettingsLoad()

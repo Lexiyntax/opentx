@@ -22,6 +22,10 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+#if defined(LIBOPENUI)
+  #include "libopenui.h"
+#endif
+
 TelemetryItem telemetryItems[MAX_TELEMETRY_SENSORS];
 uint8_t allowNewSensors;
 
@@ -558,6 +562,10 @@ int setTelemetryValue(TelemetryProtocol protocol, uint16_t id, uint8_t subId, ui
 
       case PROTOCOL_TELEMETRY_HOTT:
         hottSetDefault(index, id, subId, instance);
+        break;
+
+      case PROTOCOL_TELEMETRY_MLINK:
+        mlinkSetDefault(index, id, subId, instance);
         break;
 #endif
 

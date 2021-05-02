@@ -486,10 +486,10 @@ char * getSourceString(char * dest, mixsrc_t idx)
   else {
     idx -= MIXSRC_FIRST_TELEM;
     div_t qr = div(idx, 3);
-    dest[0] = '\321';
-    int pos = 1 + zchar2str(&dest[1], g_model.telemetrySensors[qr.quot].label, sizeof(g_model.telemetrySensors[qr.quot].label));
-    if (qr.rem) dest[pos++] = (qr.rem==2 ? '+' : '-');
-    dest[pos] = '\0';
+    dest[0] = CHAR_TELEMETRY;
+    char  * pos = strAppend(&dest[1], g_model.telemetrySensors[qr.quot].label, sizeof(g_model.telemetrySensors[qr.quot].label));
+    if (qr.rem) * pos = (qr.rem==2 ? '+' : '-');
+    * ++pos = '\0';
   }
 
   return dest;

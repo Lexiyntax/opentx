@@ -88,7 +88,7 @@ void interrupt10ms()
   int8_t scrollRE = reNewValue - rePreviousValue;
   if (scrollRE) {
     rePreviousValue = reNewValue;
-    putEvent(scrollRE < 0 ? EVT_KEY_FIRST(KEY_UP) : EVT_KEY_FIRST(KEY_DOWN));
+    pushEvent(scrollRE < 0 ? EVT_KEY_FIRST(KEY_UP) : EVT_KEY_FIRST(KEY_DOWN));
   }
 #endif
 }
@@ -218,8 +218,13 @@ int main()
     }
   }
 
+#if defined(RADIO_T8) && !defined(RADIOMASTER_RELEASE)
+  // Bind button not pressed
+  if ((~KEYS_GPIO_REG_BIND & KEYS_GPIO_PIN_BIND) == false) {
+#else
   // LHR & RHL trims not pressed simultanously
   if (readTrims() != BOOTLOADER_KEYS) {
+#endif
     // Start main application
     jumpTo(APP_START_ADDRESS);
   }

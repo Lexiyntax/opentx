@@ -32,6 +32,10 @@ class PageTab {
   friend class TabsGroup;
 
   public:
+    PageTab()
+    {
+    }
+
     PageTab(std::string title, unsigned icon):
       title(std::move(title)),
       icon(icon)
@@ -64,6 +68,11 @@ class PageTab {
       title = std::move(value);
     }
 
+    void setIcon(unsigned icon)
+    {
+      this->icon = icon;
+    }
+
     unsigned getIcon() const
     {
       return icon;
@@ -71,7 +80,7 @@ class PageTab {
 
   protected:
     std::string title;
-    unsigned icon;
+    unsigned icon = 0;
     std::function<void()> onPageDestroyed;
 };
 
@@ -184,7 +193,16 @@ class TabsGroup: public Window
     }
 #endif
 
+    unsigned getTabs() const
+    {
+      return tabs.size();
+    }
+  
     void addTab(PageTab * page);
+
+    // Return the index of the found tab
+    // or -1 if the tab could not be found
+    int removeTab(PageTab * page);
 
     void removeTab(unsigned index);
 
@@ -197,7 +215,7 @@ class TabsGroup: public Window
         setVisibleTab(tabs[index]);
       }
     }
-
+  
     void checkEvents() override;
 
 #if defined(HARDWARE_KEYS)

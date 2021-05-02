@@ -21,6 +21,7 @@
 #include "model_inputs.h"
 #include "opentx.h"
 #include "gvar_numberedit.h"
+#include "libopenui.h"
 
 #define SET_DIRTY() storageDirty(EE_MODEL)
 
@@ -185,7 +186,7 @@ class InputEditWindow: public Page
 
       // Input Name
       new StaticText(window, grid.getLabelSlot(), STR_INPUTNAME);
-      new TextEdit(window, grid.getFieldSlot(), g_model.inputNames[line->chn], sizeof(g_model.inputNames[line->chn]));
+      new ModelTextEdit(window, grid.getFieldSlot(), g_model.inputNames[line->chn], sizeof(g_model.inputNames[line->chn]));
       grid.nextLine();
 
       // Switch
@@ -207,7 +208,7 @@ class InputEditWindow: public Page
 
       // Name
       new StaticText(window, grid.getLabelSlot(), STR_EXPONAME);
-      new TextEdit(window, grid.getFieldSlot(), line->name, sizeof(line->name));
+      new ModelTextEdit(window, grid.getFieldSlot(), line->name, sizeof(line->name));
       grid.nextLine();
 
       // Source
@@ -278,12 +279,12 @@ class InputEditWindow: public Page
         if (i > 0 && (i % 4) == 0)
           grid.nextLine();
         new TextButton(window, grid.getFieldSlot(4, i % 4), fm,
-                                    [=]() -> uint8_t {
-                                        BFBIT_FLIP(line->flightModes, bfBit<uint32_t>(i));
-                                        SET_DIRTY();
-                                        return !(bfSingleBitGet(line->flightModes, i));
-                                    },
-                                    bfSingleBitGet(line->flightModes, i) ? 0 : BUTTON_CHECKED);
+                       [=]() -> uint8_t {
+                           BFBIT_FLIP(line->flightModes, bfBit<uint32_t>(i));
+                           SET_DIRTY();
+                           return !(bfSingleBitGet(line->flightModes, i));
+                       },
+                       OPAQUE | (bfSingleBitGet(line->flightModes, i) ? 0 : BUTTON_CHECKED));
       }
       grid.nextLine();
 

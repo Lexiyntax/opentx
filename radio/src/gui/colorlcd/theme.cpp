@@ -19,6 +19,8 @@
  */
 
 #include "opentx.h"
+#include "libopenui.h"
+
 //#include "checkbox.h"
 //#include "modal_window.h"
 
@@ -242,5 +244,6 @@ MenuWindowContent * createMenuWindow(Menu * menu)
 
 DialogWindowContent * createDialogWindow(Dialog * dialog, const rect_t & rect)
 {
+  TRACE("createDialogWindow [%d, %d, %d, %d]", rect.x, rect.y, rect.w, rect.h);
   return new DialogWindowContent(dialog, rect);
 }

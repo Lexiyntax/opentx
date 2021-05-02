@@ -22,111 +22,60 @@
 #define _WIDGETS_CONTAINER_H_
 
 #include <stdlib.h>
-#include <window.h>
-#include "widget.h"
+#include "libopenui_types.h"
+#include "form.h"
+#include "zone.h"
 
-class WidgetsContainerInterface
-{
-  public:
-    virtual unsigned int getZonesCount() const = 0;
+#define WIDGET_NAME_LEN     10
+#define MAX_WIDGET_OPTIONS   5 // Name?
 
-    virtual rect_t getZone(unsigned int index) const = 0;
+#define MAX_TOPBAR_ZONES     4
+#define MAX_TOPBAR_OPTIONS   1 // just because of VC++ which doesn't like 0-size arrays :(
 
-    inline Widget * getWidget(unsigned int index)
-    {
-      return widgets[index];
-    }
+// Common 'ZoneOptionValue's among all layouts
+enum {
+  LAYOUT_OPTION_TOPBAR = 0,
+  LAYOUT_OPTION_FM,
+  LAYOUT_OPTION_SLIDERS,
+  LAYOUT_OPTION_TRIMS,
+  LAYOUT_OPTION_MIRRORED,
 
-    inline void setWidget(unsigned int index, Widget * widget)
-    {
-      widgets[index] = widget;
-    }
-
-    virtual void createWidget(unsigned int index, const WidgetFactory * factory) = 0;
-
-  protected:
-    Widget ** widgets;
+  LAYOUT_OPTION_LAST_DEFAULT=LAYOUT_OPTION_MIRRORED
 };
 
-#define WIDGET_NAME_LEN   10
+class Widget;
+class WidgetFactory;
+class LayoutFactory;
+
+struct WidgetPersistentData {
+  ZoneOptionValueTyped options[MAX_WIDGET_OPTIONS] USE_IDX;
+};
+
+struct ZonePersistentData {
+  char widgetName[WIDGET_NAME_LEN];
+  WidgetPersistentData widgetData;
+};
 
 template<int N, int O>
-class WidgetsContainer: public Window, public WidgetsContainerInterface
+struct WidgetsContainerPersistentData {
+  ZonePersistentData   zones[N];
+  ZoneOptionValueTyped options[O];
+};
+
+typedef WidgetsContainerPersistentData<MAX_TOPBAR_ZONES, MAX_TOPBAR_OPTIONS> TopBarPersistentData;
+
+class WidgetsContainer: public FormGroup
 {
   public:
-    struct ZonePersistentData {
-      char widgetName[WIDGET_NAME_LEN];
-      Widget::PersistentData widgetData;
-    };
-
-    struct PersistentData {
-      ZonePersistentData   zones[N];
-      ZoneOptionValueTyped options[O];
-    };
-
-    WidgetsContainer(const rect_t & rect, PersistentData * persistentData):
-      Window(nullptr, rect),
-      persistentData(persistentData)
-    {
-    }
-
-    void createWidget(unsigned int index, const WidgetFactory * factory) override
-    {
-      memset(persistentData->zones[index].widgetName, 0, sizeof(persistentData->zones[index].widgetName));
-      if (factory) {
-        strncpy(persistentData->zones[index].widgetName, factory->getName(), sizeof(persistentData->zones[index].widgetName));
-        widgets[index] = factory->create(this, getZone(index), &persistentData->zones[index].widgetData);
-      }
-      else {
-        widgets[index] = nullptr;
-      }
-    }
-
-    virtual void create()
-    {
-      memset(persistentData, 0, sizeof(PersistentData));
-    }
-
-    virtual void load()
-    {
-      unsigned int count = getZonesCount();
-      for (unsigned int i = 0; i < count; i++) {
-        delete widgets[i];
-        if (persistentData->zones[i].widgetName[0]) {
-          char name[WIDGET_NAME_LEN + 1];
-          memset(name, 0, sizeof(name));
-          strncpy(name, persistentData->zones[i].widgetName, WIDGET_NAME_LEN);
-          // TODO widgets[i] = loadWidget(name, getZone(i), &persistentData->zones[i].widgetData);
-        }
-        else {
-          widgets[i] = nullptr;
-        }
-      }
-    }
-
-    inline ZoneOptionValue * getOptionValue(unsigned int index) const
-    {
-      return &persistentData->options[index].value;
-    }
-
-    unsigned int getZonesCount() const override = 0;
-
-    rect_t getZone(unsigned int index) const override = 0;
-
-    virtual void background()
-    {
-      if (widgets) {
-        for (int i = 0; i < N; i++) {
-          if (widgets[i]) {
-            widgets[i]->background();
-          }
-        }
-      }
-    }
-
-  protected:
-    PersistentData * persistentData;
-    Widget * widgets[N] = {};
+    using FormGroup::FormGroup;
+  
+    virtual unsigned int getZonesCount() const = 0;
+    virtual rect_t getZone(unsigned int index) const = 0;
+    virtual Widget * createWidget(unsigned int index, const WidgetFactory * factory) = 0;
+    virtual Widget * getWidget(unsigned int index) = 0;
+    virtual void removeWidget(unsigned int index) = 0;
+    virtual void adjustLayout() = 0;
 };
+
 
 #endif // _WIDGETS_CONTAINER_H_

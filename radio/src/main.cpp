@@ -21,7 +21,7 @@
 #include "opentx.h"
 
 #if defined(LIBOPENUI)
-  #include "mainwindow.h"
+  #include "libopenui.h"
 #endif
 
 uint8_t currentSpeakerVolume = 255;
@@ -104,7 +104,7 @@ void handleUsbConnection()
     usbStop();
     if (getSelectedUsbMode() == USB_MASS_STORAGE_MODE) {
       opentxResume();
-      putEvent(EVT_ENTRY);
+      pushEvent(EVT_ENTRY);
     }
     setSelectedUsbMode(USB_UNSELECTED_MODE);
   }
@@ -572,6 +572,10 @@ void perMain()
 #endif
     return;
   }
+#endif
+
+#if defined(KEYS_GPIO_REG_BIND) && defined(BIND_KEY)
+  bindButtonHandler(evt);
 #endif
 
 #if defined(GUI)

@@ -21,6 +21,7 @@
 #define _GVAR_NUMBEREDIT_H_
 
 #include "form.h"
+#include "choice.h"
 #include "numberedit.h"
 #include "gvars.h"
 
@@ -111,7 +112,7 @@ class GVarNumberEdit: public FormGroup
       new TextButton(this, {width() - GVAR_BUTTON_WIDTH, 0, GVAR_BUTTON_WIDTH, height()}, STR_GV, [=]() {
           switchGVarMode();
           return 0;
-      }, BUTTON_BACKGROUND | FORM_DETACHED);
+      }, BUTTON_BACKGROUND | OPAQUE | FORM_DETACHED);
     }
 };
 #endif

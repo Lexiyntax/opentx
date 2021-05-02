@@ -204,8 +204,8 @@ void onSdManagerMenu(const char * result)
 #if defined(PCBTARANIS)
   else if (result == STR_FLASH_BOOTLOADER) {
     getSelectionFullPath(lfn);
-    BootloaderDeviceFirmwareUpdate device(BOOTLOADER_MODULE);
-    device.flashFirmware(lfn, drawProgressScreen);
+    BootloaderFirmwareUpdate bootloader;
+    bootloader.flashFirmware(lfn, drawProgressScreen);
   }
   else if (result == STR_FLASH_INTERNAL_MODULE) {
     getSelectionFullPath(lfn);
@@ -227,19 +227,19 @@ void onSdManagerMenu(const char * result)
 #if defined(INTERNAL_MODULE_MULTI)
   else if (result == STR_FLASH_INTERNAL_MULTI) {
     getSelectionFullPath(lfn);
-    MultiDeviceFirmwareUpdate device(INTERNAL_MODULE);
-    device.flashFirmware(lfn, MULTI_TYPE_MULTIMODULE, drawProgressScreen);
+    MultiDeviceFirmwareUpdate device(INTERNAL_MODULE, MULTI_TYPE_MULTIMODULE);
+    device.flashFirmware(lfn, drawProgressScreen);
   }
 #endif
   else if (result == STR_FLASH_EXTERNAL_MULTI) {
     getSelectionFullPath(lfn);
-    MultiDeviceFirmwareUpdate device(EXTERNAL_MODULE);
-    device.flashFirmware(lfn, MULTI_TYPE_MULTIMODULE, drawProgressScreen);
+    MultiDeviceFirmwareUpdate device(EXTERNAL_MODULE, MULTI_TYPE_MULTIMODULE);
+    device.flashFirmware(lfn, drawProgressScreen);
   }
   else if (result == STR_FLASH_EXTERNAL_ELRS) {
     getSelectionFullPath(lfn);
-    MultiDeviceFirmwareUpdate device(EXTERNAL_MODULE);
-    device.flashFirmware(lfn, MULTI_TYPE_ELRS, drawProgressScreen);
+    MultiDeviceFirmwareUpdate device(EXTERNAL_MODULE, MULTI_TYPE_ELRS);
+    device.flashFirmware(lfn, drawProgressScreen);
   }
 #endif
 #if defined(BLUETOOTH)

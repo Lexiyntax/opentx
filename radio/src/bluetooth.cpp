@@ -21,6 +21,12 @@
 #include "opentx.h"
 #include "io/frsky_firmware_update.h"
 
+#if defined(LIBOPENUI)
+  #include "libopenui.h"
+#else
+  #include "libopenui/src/libopenui_file.h"
+#endif
+
 #if defined(LOG_BLUETOOTH)
 extern FIL g_bluetoothFile;
 #endif
@@ -159,11 +165,13 @@ void Bluetooth::appendTrainerByte(uint8_t data)
     buffer[bufferIndex++] = data;
     // we check for "DisConnected", but the first byte could be altered (if received in state STATE_DATA_XOR)
     if (data == '\n') {
-      if (!strncmp((char *)&buffer[bufferIndex-13], "isConnected", 11)) {
-        BLUETOOTH_TRACE("BT< DisConnected" CRLF);
-        state = BLUETOOTH_STATE_DISCONNECTED;
-        bufferIndex = 0;
-        wakeupTime += 200; // 1s
+      if (bufferIndex >= 13) {      
+        if (!strncmp((char *)&buffer[bufferIndex-13], "isConnected", 11)) {
+          BLUETOOTH_TRACE("BT< DisConnected" CRLF);
+          state = BLUETOOTH_STATE_DISCONNECTED;
+          bufferIndex = 0;
+          wakeupTime += 200; // 1s
+        }
       }
     }
   }
@@ -215,11 +223,11 @@ void Bluetooth::processTrainerByte(uint8_t data)
 
   if (bufferIndex >= BLUETOOTH_PACKET_SIZE) {
     uint8_t crc = 0x00;
-    for (int i=0; i<13; i++) {
+    for (int i = 0; i < BLUETOOTH_PACKET_SIZE - 1; i++) {
       crc ^= buffer[i];
     }
-    if (crc == buffer[13]) {
-      if (buffer[0] == 0x80) {
+    if (crc == buffer[BLUETOOTH_PACKET_SIZE - 1]) {
+      if (buffer[0] == TRAINER_FRAME) {
         processTrainerFrame(buffer);
       }
     }
@@ -249,7 +257,7 @@ void Bluetooth::sendTrainer()
   crc = 0x00;
 
   buffer[bufferIndex++] = START_STOP; // start byte
-  pushByte(0x80); // trainer frame type?
+  pushByte(TRAINER_FRAME);
   for (int channel=0; channel<lastCh; channel+=2, cur+=3) {
     uint16_t channelValue1 = PPM_CH_CENTER(channel) + limit((int16_t)-PPM_range, channelOutputs[channel], (int16_t)PPM_range) / 2;
     uint16_t channelValue2 = PPM_CH_CENTER(channel+1) + limit((int16_t)-PPM_range, channelOutputs[channel+1], (int16_t)PPM_range) / 2;

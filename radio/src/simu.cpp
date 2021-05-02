@@ -324,7 +324,7 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
     KEY_Down,      KEY_DOWN,
     KEY_Right,     KEY_RIGHT,
     KEY_Left,      KEY_LEFT,
-#elif defined(PCBXLITE) || defined(RADIO_T12)
+#elif defined(PCBXLITE) || defined(RADIO_FAMILY_JUMPER_T12)
   #if defined(KEYS_GPIO_REG_SHIFT)
     KEY_Shift_L,   KEY_SHIFT,
   #endif
@@ -342,6 +342,15 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
     KEY_Down,      KEY_EXIT,
     KEY_Right,     KEY_TELE,
     KEY_Left,      KEY_SYS,
+#elif defined(RADIO_T8)
+    KEY_Page_Up,   KEY_PAGEUP,
+    KEY_Page_Down, KEY_PAGEDN,
+    KEY_Return,    KEY_ENTER,
+    KEY_Right,     KEY_MODEL,
+    KEY_BackSpace, KEY_EXIT,
+    KEY_Left,      KEY_SYS,
+    KEY_Up,        KEY_PLUS,
+    KEY_Down,      KEY_MINUS,
 #elif defined(PCBTARANIS)
     KEY_Page_Up,   KEY_MENU,
   #if defined(KEYS_GPIO_REG_PAGE)
@@ -374,7 +383,7 @@ void OpenTxSim::updateKeysAndSwitches(bool start)
   static FXuint trimKeys[] = { KEY_F1, KEY_F2, KEY_F3, KEY_F4, KEY_F5, KEY_F6, KEY_F7, KEY_F8, KEY_F9, KEY_F10, KEY_F11, KEY_F12 };
 #endif
 
-  for (unsigned i=0; i<NUM_TRIMS_KEYS; i++) {
+  for (unsigned i=0; i<sizeof(trimKeys)/(2*sizeof(FXuint)); i++) {
     simuSetTrim(i, getApp()->getKeyState(trimKeys[i]));
   }
 

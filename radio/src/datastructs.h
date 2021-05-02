@@ -21,6 +21,8 @@
 // No include guards here, this file may be included many times in different namespaces
 // i.e. BACKUP RAM Backup/Restore functions
 
+#pragma once
+
 #include <inttypes.h>
 #include "board.h"
 #include "dataconstants.h"
@@ -548,14 +550,14 @@ typedef uint8_t swarnenable_t;
 #elif defined(COLORLCD)
 #include "gui/colorlcd/layout.h"
 #include "gui/colorlcd/topbar.h"
-#define LAYOUT_NAME_LEN 10
+#define LAYOUT_ID_LEN 10
 PACK(struct CustomScreenData {
-  char layoutName[LAYOUT_NAME_LEN];
-  Layout::PersistentData layoutData;
+  char LayoutId[LAYOUT_ID_LEN];
+  LayoutPersistentData layoutData;
 });
 #define CUSTOM_SCREENS_DATA \
   NOBACKUP(CustomScreenData screenData[MAX_CUSTOM_SCREENS]); \
-  NOBACKUP(TopBar::PersistentData topbarData); \
+  NOBACKUP(TopBarPersistentData topbarData); \
   NOBACKUP(uint8_t view);
 #else
 #define CUSTOM_SCREENS_DATA \
@@ -919,7 +921,7 @@ static inline void check_struct()
   CHKSIZE(ModelHeader, 31);
   CHKSIZE(CurveHeader, 4);
   CHKSIZE(CustomScreenData, 850);
-  CHKSIZE(TopBar::PersistentData, 300);
+  CHKTYPE(TopBarPersistentData, 300);
 #elif defined(PCBNV14)
   // TODO
 #elif defined(PCBSKY9X)

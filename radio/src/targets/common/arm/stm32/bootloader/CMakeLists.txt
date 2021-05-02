@@ -88,7 +88,7 @@ set(BOOTLOADER_SRC
   bin_files.cpp
   )
 
-if(PCB STREQUAL X12S OR PCB STREQUAL X10 OR PCB STREQUAL X9E OR (PCB STREQUAL X9D+ AND PCBREV STREQUAL 2019) OR (PCB STREQUAL X7 AND NOT (PCBREV STREQUAL T12)) OR PCB STREQUAL X9LITE OR PCB STREQUAL X9LITES)
+if(ROTARY_ENCODER)
   set(BOOTLOADER_SRC
     ${BOOTLOADER_SRC}
     ../../../../../targets/common/arm/stm32/rotary_encoder_driver.cpp
@@ -162,7 +162,7 @@ set(CMAKE_EXE_LINKER_FLAGS "-mcpu=${MCU} -mthumb -nostartfiles -lm -T${RADIO_SRC
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --specs=nano.specs")
 
 add_executable(bootloader ${BOOTLOADER_SRC})
-add_dependencies(bootloader ${BITMAPS_TARGET})
+add_dependencies(bootloader ${BITMAPS_TARGET} radio_translations)
 
 add_custom_command(
   TARGET bootloader POST_BUILD

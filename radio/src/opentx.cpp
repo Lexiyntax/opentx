@@ -22,9 +22,10 @@
 #include <io/frsky_firmware_update.h>
 
 #if defined(LIBOPENUI)
-// #include "shutdown_animation.h"
-// #include "radio_calibration.h"
-#include "view_main.h"
+  #include "libopenui.h"
+  // #include "shutdown_animation.h"
+  #include "radio_calibration.h"
+  #include "view_main.h"
 #endif
 
 #if defined(PCBSKY9X)
@@ -180,7 +181,7 @@ void per10ms()
       bool new_cw = (scrollRE < 0) ? false : true;
       if ((g_tmr10ms - lastEvent >= 10) || (cw == new_cw)) { // 100ms
 
-        putEvent(new_cw ? EVT_ROTARY_RIGHT : EVT_ROTARY_LEFT);
+        pushEvent(new_cw ? EVT_ROTARY_RIGHT : EVT_ROTARY_LEFT);
 
         // rotary encoder navigation speed (acceleration) detection/calculation
         static uint32_t delay = 2*ROTENC_DELAY_MIDSPEED;
@@ -344,6 +345,14 @@ void generalDefault()
   setDefaultOwnerId();
 #endif
 
+#if defined(RADIOMASTER_RTF_RELEASE)
+  // Those settings are for headless radio
+  g_eeGeneral.USBMode = USB_JOYSTICK_MODE;
+  g_eeGeneral.disableRtcWarning = 1;
+  g_eeGeneral.splashMode = 3; // Disable splash
+  g_eeGeneral.pwrOnSpeed = 1; // 1 second
+#endif
+
   g_eeGeneral.chkSum = 0xFFFF;
 }
 
@@ -356,173 +365,6 @@ uint16_t evalChkSum()
   return sum;
 }
 
-void clearInputs()
-{
-  memset(g_model.expoData, 0, sizeof(g_model.expoData)); // clear all expos
-}
-
-void defaultInputs()
-{
-  clearInputs();
-
-  for (int i=0; i<NUM_STICKS; i++) {
-    uint8_t stick_index = channelOrder(i+1);
-    ExpoData *expo = expoAddress(i);
-    expo->srcRaw = MIXSRC_Rud - 1 + stick_index;
-    expo->curve.type = CURVE_REF_EXPO;
-    expo->chn = i;
-    expo->weight = 100;
-    expo->mode = 3; // TODO constant
-    for (int c = 0; c < 3; c++) {
-      g_model.inputNames[i][c] = STR_VSRCRAW[2 + 4 * stick_index + c];
-    }
-#if LEN_INPUT_NAME > 3
-    g_model.inputNames[i][3] = '\0';
-#endif
-  }
-  storageDirty(EE_MODEL);
-}
-
-void applyDefaultTemplate()
-{
-  defaultInputs(); // calls storageDirty internally
-
-  for (int i=0; i<NUM_STICKS; i++) {
-    MixData * mix = mixAddress(i);
-    mix->destCh = i;
-    mix->weight = 100;
-    mix->srcRaw = i+1;
-  }
-}
-
-#if defined(EEPROM)
-void checkModelIdUnique(uint8_t index, uint8_t module)
-{
-  if (isModuleXJTD8(module))
-    return;
-
-  uint8_t modelId = g_model.header.modelId[module];
-  uint8_t additionalOnes = 0;
-  char * name = reusableBuffer.moduleSetup.msg;
-
-  memset(reusableBuffer.moduleSetup.msg, 0, sizeof(reusableBuffer.moduleSetup.msg));
-
-  if (modelId != 0) {
-    for (uint8_t i = 0; i < MAX_MODELS; i++) {
-      if (i != index) {
-        if (modelId == modelHeaders[i].modelId[module]) {
-          if ((WARNING_LINE_LEN - 4 - (name - reusableBuffer.moduleSetup.msg)) > (signed)(modelHeaders[i].name[0] ? zlen(modelHeaders[i].name, LEN_MODEL_NAME) : sizeof(TR_MODEL) + 2)) { // you cannot rely exactly on WARNING_LINE_LEN so using WARNING_LINE_LEN-2 (-2 for the ",")
-            if (reusableBuffer.moduleSetup.msg[0] != '\0') {
-              name = strAppend(name, ", ");
-            }
-            if (modelHeaders[i].name[0] == 0) {
-              name = strAppend(name, STR_MODEL);
-              name = strAppendUnsigned(name+strlen(name), i + 1, 2);
-            }
-            else {
-              name += zchar2str(name, modelHeaders[i].name, LEN_MODEL_NAME);
-            }
-          }
-          else {
-            additionalOnes++;
-          }
-        }
-      }
-    }
-  }
-
-  if (additionalOnes) {
-    name = strAppend(name, " (+");
-    name = strAppendUnsigned(name, additionalOnes);
-    strAppend(name, ")");
-  }
-
-  if (reusableBuffer.moduleSetup.msg[0]) {
-    POPUP_WARNING(STR_MODELIDUSED, reusableBuffer.moduleSetup.msg);
-  }
-}
-
-uint8_t findNextUnusedModelId(uint8_t index, uint8_t module)
-{
-  uint8_t usedModelIds[(MAX_RXNUM + 7) / 8];
-  memset(usedModelIds, 0, sizeof(usedModelIds));
-
-  for (uint8_t modelIndex = 0; modelIndex < MAX_MODELS; modelIndex++) {
-    if (modelIndex == index)
-      continue;
-
-    uint8_t id = modelHeaders[modelIndex].modelId[module];
-    if (id == 0)
-      continue;
-
-    uint8_t mask = 1u << (id & 7u);
-    usedModelIds[id >> 3u] |= mask;
-  }
-
-  for (uint8_t id = 1; id <= getMaxRxNum(module); id++) {
-    uint8_t mask = 1u << (id & 7u);
-    if (!(usedModelIds[id >> 3u] & mask)) {
-      // found free ID
-      return id;
-    }
-  }
-
-  // failed finding something...
-  return 0;
-}
-#endif
-
-void modelDefault(uint8_t id)
-{
-  memset(&g_model, 0, sizeof(g_model));
-
-  applyDefaultTemplate();
-
-  memcpy(g_model.modelRegistrationID, g_eeGeneral.ownerRegistrationID, PXX2_LEN_REGISTRATION_ID);
-
-#if defined(LUA) && defined(PCBTARANIS) // Horus uses menuModelWizard() for wizard
-  if (isFileAvailable(WIZARD_PATH "/" WIZARD_NAME)) {
-    f_chdir(WIZARD_PATH);
-    luaExec(WIZARD_NAME);
-  }
-#endif
-
-#if defined(FRSKY_RELEASE)
-  g_model.moduleData[INTERNAL_MODULE].type = IS_PXX2_INTERNAL_ENABLED() ? MODULE_TYPE_ISRM_PXX2 : MODULE_TYPE_XJT_PXX1;
-  g_model.moduleData[INTERNAL_MODULE].channelsCount = defaultModuleChannels_M8(INTERNAL_MODULE);
-  #if defined(EEPROM)
-    g_model.header.modelId[INTERNAL_MODULE] = findNextUnusedModelId(id, INTERNAL_MODULE);
-    modelHeaders[id].modelId[INTERNAL_MODULE] = g_model.header.modelId[INTERNAL_MODULE];
-  #endif
-#endif
-
-#if defined(PCBXLITE)
-  g_model.trainerData.mode = TRAINER_MODE_MASTER_BLUETOOTH;
-#endif
-
-#if defined(FLIGHT_MODES) && defined(GVARS)
-  for (int fmIdx = 1; fmIdx < MAX_FLIGHT_MODES; fmIdx++) {
-    for (int gvarIdx = 0; gvarIdx < MAX_GVARS; gvarIdx++) {
-      g_model.flightModeData[fmIdx].gvars[gvarIdx] = GVAR_MAX + 1;
-    }
-  }
-#endif
-
-  strAppendUnsigned(strAppend(g_model.header.name, STR_MODEL), id + 1, 2);
-
-#if defined(COLORLCD)
-  extern const LayoutFactory * defaultLayout;
-  delete customScreens[0];
-  customScreens[0] = defaultLayout->create(&g_model.screenData[0].layoutData);
-  strcpy(g_model.screenData[0].layoutName, "Layout2P1");
-//  extern const WidgetFactory * defaultWidget;
-//  customScreens[0]->createWidget(0, defaultWidget);
-  // enable switch warnings
-  for (int i = 0; i < NUM_SWITCHES; i++) {
-    g_model.switchWarningState |= (1 << (3*i));
-  }
-#endif
-}
 
 bool isInputRecursive(int index)
 {
@@ -539,6 +381,8 @@ bool isInputRecursive(int index)
 }
 
 #if defined(AUTOSOURCE)
+constexpr int MULTIPOS_STEP_SIZE = (2 * RESX) / XPOTS_MULTIPOS_COUNT;
+
 int8_t getMovedSource(GET_MOVED_SOURCE_PARAMS)
 {
   int8_t result = 0;
@@ -547,7 +391,7 @@ int8_t getMovedSource(GET_MOVED_SOURCE_PARAMS)
   static int16_t inputsStates[MAX_INPUTS];
   if (min <= MIXSRC_FIRST_INPUT) {
     for (uint8_t i=0; i<MAX_INPUTS; i++) {
-      if (abs(anas[i] - inputsStates[i]) > 512) {
+      if (abs(anas[i] - inputsStates[i]) > MULTIPOS_STEP_SIZE) {
         if (!isInputRecursive(i)) {
           result = MIXSRC_FIRST_INPUT+i;
           break;
@@ -559,7 +403,7 @@ int8_t getMovedSource(GET_MOVED_SOURCE_PARAMS)
   static int16_t sourcesStates[NUM_STICKS+NUM_POTS+NUM_SLIDERS+NUM_MOUSE_ANALOGS];
   if (result == 0) {
     for (uint8_t i=0; i<NUM_STICKS+NUM_POTS+NUM_SLIDERS; i++) {
-      if (abs(calibratedAnalogs[i] - sourcesStates[i]) > 512) {
+      if (abs(calibratedAnalogs[i] - sourcesStates[i]) > MULTIPOS_STEP_SIZE) {
         result = MIXSRC_Rud+i;
         break;
       }
@@ -917,7 +761,7 @@ void checkAll()
   checkFailsafe();
   checkRSSIAlarmsDisabled();
 
-#if defined(SDCARD)
+#if defined(SDCARD) && !defined(RADIOMASTER_RTF_RELEASE)
   checkSDVersion();
 #endif
 
@@ -1453,6 +1297,19 @@ void doMixerCalculations()
   DEBUG_TIMER_START(debugTimerEvalMixes);
   evalMixes(tick10ms);
   DEBUG_TIMER_STOP(debugTimerEvalMixes);
+}
+
+void doMixerPeriodicUpdates()
+{
+  static tmr10ms_t lastTMR = 0;
+
+  tmr10ms_t tmr10ms = get_tmr10ms();
+
+  uint8_t tick10ms = (tmr10ms >= lastTMR ? tmr10ms - lastTMR : 1);
+  // handle tick10ms overrun
+  // correct overflow handling costs a lot of code; happens only each 11 min;
+  // therefore forget the exact calculation and use only 1 instead; good compromise
+  lastTMR = tmr10ms;
 
   DEBUG_TIMER_START(debugTimerMixes10ms);
   if (tick10ms) {
@@ -1604,8 +1461,7 @@ void opentxStart(const uint8_t startOptions = OPENTX_START_DEFAULT_ARGS)
 #if defined(GUI)
   if (calibration_needed) {
 #if defined(LIBOPENUI)
-    #warning "TODO add a startCalibration function"
-    // startCalibration();
+    startCalibration();
 #else
     chainMenu(menuFirstCalib);
 #endif
@@ -1899,10 +1755,9 @@ void moveTrimsToOffsets() // copy state of 3 primary to subtrim
 void opentxInit()
 {
   TRACE("opentxInit");
-
 #if defined(LIBOPENUI)
-  new MainWindow();
-  new ViewMain();
+  // create ViewMain
+  ViewMain::instance();
 #elif defined(GUI)
   // TODO add a function for this (duplicated)
   menuHandlers[0] = menuMainView;
@@ -2234,6 +2089,7 @@ uint32_t pwrCheck()
 #endif
           event_t evt = getEvent(false);
           DISPLAY_WARNING(evt);
+          LED_ERROR_BEGIN();
           lcdRefresh();
 
           if (warningResult) {
@@ -2243,6 +2099,7 @@ uint32_t pwrCheck()
           else if (!warningText) {
             // shutdown has been cancelled
             pwr_check_state = PWR_CHECK_PAUSED;
+            LED_ERROR_END();
             return e_power_on;
           }
 #endif

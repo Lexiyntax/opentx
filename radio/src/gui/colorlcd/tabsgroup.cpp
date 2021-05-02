@@ -27,13 +27,15 @@
 
 #include "opentx.h" // TODO for constants...
 
+#include <algorithm>
+
 TabsGroupHeader::TabsGroupHeader(TabsGroup * parent, uint8_t icon):
   FormGroup(parent, { 0, 0, LCD_W, MENU_BODY_TOP }, OPAQUE),
 #if defined(HARDWARE_TOUCH)
   back(this, { 0, 0, MENU_HEADER_BUTTON_WIDTH, MENU_HEADER_BUTTON_WIDTH }, ICON_BACK,
        [=]() -> uint8_t {
          parent->deleteLater();
-         ViewMain::instance->setFocus((SET_FOCUS_DEFAULT));
+         ViewMain::instance()->setFocus((SET_FOCUS_DEFAULT));
          return 1;
        }, NO_FOCUS),
 #endif
@@ -94,6 +96,19 @@ void TabsGroup::addTab(PageTab * page)
     setCurrentTab(0);
   }
   header.carousel.updateInnerWidth();
+  invalidate();
+}
+
+int TabsGroup::removeTab(PageTab * page)
+{
+  auto tabIter = std::find(tabs.begin(), tabs.end(), page);
+  if (tabIter != tabs.end()) {
+    auto idx = tabIter - tabs.begin();
+    removeTab(idx);
+    return idx;
+  }
+
+  return -1;
 }
 
 void TabsGroup::removeTab(unsigned index)
@@ -103,6 +118,7 @@ void TabsGroup::removeTab(unsigned index)
   }
   tabs.erase(tabs.begin() + index);
   header.carousel.updateInnerWidth();
+  invalidate();
 }
 
 void TabsGroup::removeAllTabs()
@@ -132,6 +148,11 @@ void TabsGroup::setVisibleTab(PageTab * tab)
   }
 }
 
+// TODO: add a mechanism to trigger a rebuild of a PageTab
+// -> rebuild():
+//    - as in setVisibleTab() (clear & build)
+//    - but without changing tab
+
 void TabsGroup::checkEvents()
 {
   Window::checkEvents();
@@ -160,7 +181,7 @@ void TabsGroup::onEvent(event_t event)
   }
   else if (event == EVT_KEY_LONG(KEY_EXIT) || event == EVT_KEY_BREAK(KEY_EXIT)) {
     killEvents(event);
-    ViewMain::instance->setFocus(SET_FOCUS_DEFAULT);
+    ViewMain::instance()->setFocus(SET_FOCUS_DEFAULT);
     deleteLater();
   }
   else if (parent) {

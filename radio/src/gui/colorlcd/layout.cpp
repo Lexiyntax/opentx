@@ -20,8 +20,8 @@
 
 #include "opentx.h"
 #include "view_main.h"
-#include "layouts/trims.h"
-#include "layouts/sliders.h"
+
+WidgetsContainer * customScreens[MAX_CUSTOM_SCREENS] = {};
 
 std::list<const LayoutFactory *> & getRegisteredLayouts()
 {
@@ -37,7 +37,7 @@ void registerLayout(const LayoutFactory * factory)
 
 const LayoutFactory * getLayoutFactory(const char * name)
 {
-  std::list<const LayoutFactory *>::const_iterator it = getRegisteredLayouts().cbegin();
+  auto it = getRegisteredLayouts().cbegin();
   for (; it != getRegisteredLayouts().cend(); ++it) {
     if (!strcmp(name, (*it)->getId())) {
       return (*it);
@@ -46,7 +46,11 @@ const LayoutFactory * getLayoutFactory(const char * name)
   return nullptr;
 }
 
-Layout * loadLayout(const char * name, Layout::PersistentData * persistentData)
+//
+// Loads a layout, but does not attach it to any window
+//
+WidgetsContainer *
+loadLayout(const char * name, LayoutPersistentData * persistentData)
 {
   const LayoutFactory * factory = getLayoutFactory(name);
   if (factory) {
@@ -55,111 +59,130 @@ Layout * loadLayout(const char * name, Layout::PersistentData * persistentData)
   return nullptr;
 }
 
+//
+// Detaches and deletes all custom screens
+//
+void deleteCustomScreens()
+{
+  for (auto& screen : customScreens) {
+    if (screen) {
+      screen->deleteLater();
+      screen = nullptr;
+    }
+  }
+}
+
+extern const LayoutFactory * defaultLayout;
+
+void loadDefaultLayout()
+{
+  auto& screen = customScreens[0];
+  auto& screenData = g_model.screenData[0];
+
+  if (screen == nullptr && defaultLayout != nullptr) {
+
+    strcpy(screenData.LayoutId, defaultLayout->getId());
+    screen = defaultLayout->create(&screenData.layoutData);
+    //
+    // TODO:
+    // -> attach a few default widgets
+    //    - ModelBmp
+    //    - Timer
+    //    - ???
+    //
+    if (screen) {
+      screen->attach(ViewMain::instance());
+    }
+  }
+}
+
+//
+// Loads and attaches all configured custom screens
+//
 void loadCustomScreens()
 {
-  for (unsigned int i = 0; i < MAX_CUSTOM_SCREENS; i++) {
-    delete customScreens[i];
-    char name[LAYOUT_NAME_LEN + 1];
-    memset(name, 0, sizeof(name));
-    strncpy(name, g_model.screenData[i].layoutName, LAYOUT_NAME_LEN);
-    customScreens[i] = loadLayout(name, &g_model.screenData[i].layoutData);
+  unsigned i = 0;
+  auto viewMain = ViewMain::instance();
+
+  while (i < MAX_CUSTOM_SCREENS) {
+
+    auto& screen = customScreens[i];
+    screen = loadLayout(g_model.screenData[i].LayoutId,
+                        &g_model.screenData[i].layoutData);
+
+    if (!screen) {
+      // no more layouts
+      break;
+    }
+
+    // layout is ok, let's add it
+    screen->attach(viewMain);
+    viewMain->setMainViewsCount(i + 1);
+    screen->setLeft(viewMain->getMainViewLeftPos(i));
+    i++;
   }
 
-  if (customScreens[0] == nullptr && getRegisteredLayouts().size()) {
-    customScreens[0] = getRegisteredLayouts().front()->create(&g_model.screenData[0].layoutData);
-  }
+  auto topbar = viewMain->getTopbar();
 
-  customScreens[g_model.view]->attach(ViewMain::instance);
+  // TODO: how to reload this guy?
+  topbar->load();
+  
+  viewMain->setCurrentMainView(0);
+  viewMain->updateTopbarVisibility();
 }
 
-void Layout::decorate(bool topbar, bool sliders, bool trims, bool flightMode)
+//
+// Creates a new customer screen from factory:
+//  - the old screen is detached & deleted (including children)
+//  - new screen is configured into g_model
+//  - the new screen is returned (not attached)
+//
+WidgetsContainer *
+createCustomScreen(const LayoutFactory* factory, unsigned customScreenIndex)
 {
-  if (topbar) {
-    topBar = new TopBar(this);
-    topBar->load();
+  if (!factory || (customScreenIndex >= MAX_CUSTOM_SCREENS))
+    return nullptr;
+
+  if (customScreens[customScreenIndex]) {
+    customScreens[customScreenIndex]->deleteLater(true, false);
+    delete customScreens[customScreenIndex];
   }
 
-  if (sliders) {
-#if defined(HARDWARE_EXT1) || defined(HARDWARE_EXT2)
-    coord_t yOffset = (trims ? - TRIM_SQUARE_SIZE : 0) + (topbar ? TOPBAR_HEIGHT / 2 : 0);
-#endif
+  auto screen = factory->create(&g_model.screenData[customScreenIndex].layoutData);
+  customScreens[customScreenIndex] = screen;
 
-    new MainViewHorizontalSlider(this, {HMARGIN, LCD_H - TRIM_SQUARE_SIZE, HORIZONTAL_SLIDERS_WIDTH, TRIM_SQUARE_SIZE},
-                                 [=] { return calibratedAnalogs[CALIBRATED_POT1]; });
+  if (screen) {
+    auto dst = g_model.screenData[customScreenIndex].LayoutId;
+    auto src = factory->getId();
+    strncpy(dst, src, sizeof(CustomScreenData::LayoutId));
 
-    if (IS_POT_MULTIPOS(POT2)) {
-      new MainView6POS(this, {LCD_W / 2 - MULTIPOS_W / 2, LCD_H - TRIM_SQUARE_SIZE, MULTIPOS_W + 1, MULTIPOS_H},
-                       [=] { return (1 + (potsPos[1] & 0x0f)); });
-    }
-    else if (IS_POT(POT2)) {
-      new MainViewHorizontalSlider(this, {LCD_W - HORIZONTAL_SLIDERS_WIDTH - HMARGIN, LCD_H - TRIM_SQUARE_SIZE, HORIZONTAL_SLIDERS_WIDTH, TRIM_SQUARE_SIZE},
-                                   [=] { return calibratedAnalogs[CALIBRATED_POT2]; });
-    }
-
-#if defined(HARDWARE_POT3)
-    new MainViewHorizontalSlider(this, {LCD_W - HORIZONTAL_SLIDERS_WIDTH - HMARGIN, LCD_H - TRIM_SQUARE_SIZE, HORIZONTAL_SLIDERS_WIDTH, TRIM_SQUARE_SIZE},
-                                 [=] { return calibratedAnalogs[CALIBRATED_POT3]; });
-#endif
-
-#if defined(HARDWARE_EXT1)
-    if (IS_POT_SLIDER_AVAILABLE(EXT1)) {
-      new MainViewVerticalSlider(this, {HMARGIN, LCD_H / 2 - VERTICAL_SLIDERS_HEIGHT(topbar) / 2 + yOffset, TRIM_SQUARE_SIZE, VERTICAL_SLIDERS_HEIGHT(topbar) / 2},
-                                 [=] { return calibratedAnalogs[CALIBRATED_SLIDER_REAR_LEFT]; });
-      new MainViewVerticalSlider(this, {HMARGIN, LCD_H / 2 + yOffset, TRIM_SQUARE_SIZE, VERTICAL_SLIDERS_HEIGHT(topbar) / 2},
-                                 [=] { return calibratedAnalogs[CALIBRATED_POT_EXT1]; });
-    }
-    else {
-      new MainViewVerticalSlider(this, {HMARGIN, LCD_H / 2 - VERTICAL_SLIDERS_HEIGHT(topbar) / 2 + yOffset, TRIM_SQUARE_SIZE, VERTICAL_SLIDERS_HEIGHT(topbar)},
-                                 [=] { return calibratedAnalogs[CALIBRATED_SLIDER_REAR_LEFT]; });
-    }
-#endif
-
-#if defined(HARDWARE_EXT2)
-    if (IS_POT_SLIDER_AVAILABLE(EXT2)) {
-      new MainViewVerticalSlider(this, {LCD_W - HMARGIN - TRIM_SQUARE_SIZE, LCD_H / 2 - VERTICAL_SLIDERS_HEIGHT(topbar) / 2 + yOffset, TRIM_SQUARE_SIZE,
-                                        VERTICAL_SLIDERS_HEIGHT(topbar) / 2},
-                                 [=] { return calibratedAnalogs[CALIBRATED_SLIDER_REAR_RIGHT]; });
-      new MainViewVerticalSlider(this, {LCD_W - HMARGIN - TRIM_SQUARE_SIZE, LCD_H / 2 + yOffset, TRIM_SQUARE_SIZE,
-                                        VERTICAL_SLIDERS_HEIGHT(topbar) / 2},
-                                 [=] { return calibratedAnalogs[CALIBRATED_POT_EXT2]; });
-    }
-    else {
-      new MainViewVerticalSlider(this, {LCD_W - HMARGIN - TRIM_SQUARE_SIZE, LCD_H / 2 - VERTICAL_SLIDERS_HEIGHT(topbar) / 2 + yOffset, TRIM_SQUARE_SIZE,
-                                        VERTICAL_SLIDERS_HEIGHT(topbar)},
-                                 [=] { return calibratedAnalogs[CALIBRATED_SLIDER_REAR_RIGHT]; });
-    }
-#endif
+    return screen;
   }
 
-  if (trims) {
-#if defined(HARDWARE_POT3) || defined(HARDWARE_EXT1)
-    coord_t xOffset = sliders? TRIM_SQUARE_SIZE : 0;
-#else
-    coord_t xOffset = 0;
-#endif
-    coord_t yOffset = (trims ? - TRIM_SQUARE_SIZE : 0);
-
-    // Trim order TRIM_LH, TRIM_LV, TRIM_RV, TRIM_RH
-
-    // Left
-    new MainViewHorizontalTrim(this, {HMARGIN, LCD_H - TRIM_SQUARE_SIZE + yOffset, HORIZONTAL_SLIDERS_WIDTH, TRIM_SQUARE_SIZE},
-                               [=] { return getTrimValue(mixerCurrentFlightMode, 0); });
-    // Right
-    new MainViewHorizontalTrim(this, {LCD_W - HORIZONTAL_SLIDERS_WIDTH - HMARGIN, LCD_H - TRIM_SQUARE_SIZE + yOffset, HORIZONTAL_SLIDERS_WIDTH, TRIM_SQUARE_SIZE},
-                               [=] { return getTrimValue(mixerCurrentFlightMode, 3); });
-
-
-    // Left
-    new MainViewVerticalTrim(this, {HMARGIN + xOffset, LCD_H /2 - VERTICAL_SLIDERS_HEIGHT(topbar) / 2 + yOffset + (topbar ? TOPBAR_HEIGHT / 2 : 0), TRIM_SQUARE_SIZE, VERTICAL_SLIDERS_HEIGHT(topbar)},
-                             [=] { return getTrimValue(mixerCurrentFlightMode, 1); });
-    // Right
-    new MainViewVerticalTrim(this, {LCD_W - HMARGIN - TRIM_SQUARE_SIZE - xOffset, LCD_H /2 - VERTICAL_SLIDERS_HEIGHT(topbar) / 2 + yOffset + (topbar ? TOPBAR_HEIGHT / 2 : 0), TRIM_SQUARE_SIZE, VERTICAL_SLIDERS_HEIGHT(topbar)},
-                             [=] { return getTrimValue(mixerCurrentFlightMode, 2); });
-  }
-
-  if (flightMode) {
-    new DynamicText(this, {50, LCD_H - 4 - (sliders? 2 * TRIM_SQUARE_SIZE: TRIM_SQUARE_SIZE), LCD_W - 100, 20}, [=] {
-        return g_model.flightModeData[mixerCurrentFlightMode].name;
-    }, CENTERED);
-  }
+  return nullptr;
 }
+
+void disposeCustomScreen(unsigned idx)
+{
+  // move custom screen data
+  if (idx >= MAX_CUSTOM_SCREENS) {
+    return;
+  }
+
+  auto dst = &g_model.screenData[idx];
+  auto src = dst + 1;
+  auto len = sizeof(CustomScreenData) * (MAX_CUSTOM_SCREENS - idx - 1);
+  memmove(dst, src, len);
+
+  dst = &g_model.screenData[MAX_CUSTOM_SCREENS - 1];
+  len = sizeof(CustomScreenData);
+  memset(dst, 0, len);
+}
+
+LayoutFactory::LayoutFactory(const char * id, const char * name):
+  id(id),
+  name(name)
+{
+  registerLayout(this);
+}
+

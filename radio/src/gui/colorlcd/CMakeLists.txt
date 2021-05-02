@@ -23,6 +23,7 @@ set(GUI_SRC
   topbar.cpp
   layout.cpp
   widget.cpp
+  widget_settings.cpp
   ${THEMES_SRC}
   ${LAYOUTS_SRC}
   ${WIDGETS_SRC}
@@ -52,6 +53,7 @@ set(GUI_SRC
   radio_diaganas.cpp
   radio_calibration.cpp
   view_main.cpp
+  view_main_decoration.cpp
   view_channels.cpp
   view_logical_switches.cpp
   view_statistics.cpp
@@ -94,10 +96,18 @@ set(SRC
   storage/modelslist.cpp
   )
 
+
+option(WINDOWS_INSPECT_BORDERS "Draw bounding boxes around windows" OFF)
+if(WINDOWS_INSPECT_BORDERS)
+  add_definitions(-DWINDOWS_INSPECT_BORDERS)
+endif()
+
 # includes libopenui
 include(${RADIO_SRC_DIR}/thirdparty/libopenui/src/CMakeLists.txt)
 include_directories(gui/libopenui)
+
 add_definitions(-DLIBOPENUI)
+
 foreach(LIBOPENUI_FILE ${LIBOPENUI_SRC})
   set(SRC ${SRC} thirdparty/libopenui/src/${LIBOPENUI_FILE})
 endforeach()

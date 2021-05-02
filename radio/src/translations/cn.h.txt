@@ -348,6 +348,8 @@
 #define TR_POPUPS_ENTER_EXIT         	TR_ENTER "\010" TR_EXIT
 
 #define TR_FREE                        "空闲"
+#define TR_YES                         "Yes"
+#define TR_NO                          "No"
 #define TR_DELETEMODEL                 "删除" BREAKSPACE "模型"
 #define TR_COPYINGMODEL                "复制模型..."
 #define TR_MOVINGMODEL                 "移动模型..."
@@ -569,6 +571,7 @@
 #define TR_MULTI_CUSTOM                "自定义"
 #define TR_MULTI_RFTUNE                TR("Freq tune", "频率微调")
 #define TR_MULTI_RFPOWER               "发射功率"
+#define TR_MULTI_WBUS                  "Output"
 #define TR_MULTI_TELEMETRY             "回传"
 #define TR_MULTI_VIDFREQ               TR("Vid. freq.", "Video frequency")
 #define TR_RF_POWER                    "发射功率"
@@ -597,6 +600,7 @@
 #define TR_BINDING_CH1_8_TELEM_OFF     "Ch1-8 关闭回传"
 #define TR_BINDING_CH9_16_TELEM_ON     "Ch9-16 开启回传"
 #define TR_BINDING_CH9_16_TELEM_OFF    "Ch9-16 关闭回传"
+#define TR_PROTOCOL                    "Protocol"
 #define TR_PROTOCOL_INVALID            TR("Prot. invalid", "无效协议")
 #define TR_MODULE_STATUS               TR(INDENT "Status", INDENT "多协议状态")
 #define TR_MODULE_SYNC                 TR(INDENT "Sync", INDENT "协议同步状态")
@@ -1124,7 +1128,6 @@
 #define TR_USER_INTERFACE              "用户界面"
 #define TR_THEME                       "主题"
 #define TR_SETUP                       "设置"
-#define TR_MAINVIEWX                   "Main view X"
 #define TR_LAYOUT                      "布局"
 #define TR_ADD_MAIN_VIEW               "添加主视图"
 #define TR_BACKGROUND_COLOR            "背景颜色"
@@ -1308,3 +1311,6 @@
 #define ZSTR_SERVO_VOLTAGE             "SrvV"
 #define ZSTR_SERVO_TEMPERATURE         "SrvT"
 #define ZSTR_SERVO_STATUS              "SrvS"
+#define ZSTR_LOSS                      "Loss"
+#define ZSTR_SPEED                     "Spd "
+#define ZSTR_FLOW                      "Flow"
